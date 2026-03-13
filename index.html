@@ -19,7 +19,7 @@
       <div class="nav-item">Playground 3</div>
     </div>
     <div class="nav-group">
-      <div class="nav-title">Project Files</div>
+      <div class="nav-title">Repo Files</div>
       <div id="files" class="files"></div>
     </div>
   </aside>
@@ -31,19 +31,25 @@
           <span class="title-main">Batao project ke bare mein</span>
           <span class="title-sub">codez-ai-main</span>
         </div>
-        <div class="status">Ready</div>
+        <div class="status" id="authStatus">Guest</div>
       </div>
       <div class="topbar-actions">
         <button class="pill" onclick="runAI('explain')">Explain</button>
         <button class="pill" onclick="runAI('fix')">Fix Bug</button>
         <button class="pill" onclick="runAI('optimize')">Optimize</button>
         <button class="pill ghost" onclick="runCode()">Run</button>
-        <label class="file-btn">
-          Open Project
-          <input type="file" webkitdirectory onchange="loadProject(event)">
-        </label>
+        <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
       </div>
     </header>
+
+    <section class="repo-bar">
+      <input id="repoUrl" type="text" placeholder="https://github.com/user/repo.git">
+      <button class="pill" onclick="cloneRepo()">Clone</button>
+      <button class="pill" onclick="pullRepo()">Pull</button>
+      <input id="commitMsg" type="text" placeholder="Commit message">
+      <button class="pill" onclick="pushRepo()">Commit + Push</button>
+      <button class="pill ghost" onclick="saveFile()">Save File</button>
+    </section>
 
     <section class="log-pane">
       <div class="log-title">Run Log</div>
@@ -55,7 +61,18 @@
       <div class="ai">
         <div class="ai-header">
           <h3>AI Chat</h3>
-          <div class="ai-tag">model: deepseek</div>
+          <div class="ai-tag" id="modelTag">model: deepseek</div>
+        </div>
+        <div class="attach-row">
+          <label class="file-btn small">
+            Add File
+            <input type="file" id="aiFile" multiple>
+          </label>
+          <label class="file-btn small">
+            Add Folder
+            <input type="file" id="aiFolder" webkitdirectory multiple>
+          </label>
+          <div class="attach-info" id="attachInfo">No attachments</div>
         </div>
         <div id="result" class="chat"></div>
       </div>
