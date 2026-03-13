@@ -1,1 +1,62 @@
+body{
+margin:0;
+background:#0b0f19;
+color:white;
+font-family:Arial;
+}
 
+.topbar{
+height:45px;
+background:#111827;
+display:flex;
+align-items:center;
+padding:0 15px;
+gap:8px;
+}
+
+.topbar button{
+background:#2563eb;
+border:none;
+padding:6px 12px;
+border-radius:5px;
+color:white;
+cursor:pointer;
+}
+
+.layout{
+display:flex;
+height:calc(100vh - 45px);
+}
+
+.sidebar{
+width:200px;
+background:#020617;
+padding:10px;
+overflow:auto;
+}
+
+.editor{
+flex:1;
+}
+
+.ai{
+width:320px;
+background:#020617;
+padding:15px;
+}
+
+.chat{
+height:70%;
+overflow:auto;
+background:#0f172a;
+padding:10px;
+border-radius:6px;
+font-family:monospace;
+}
+
+.terminal{
+height:120px;
+background:#020617;
+padding:10px;
+font-family:monospace;
+}
