@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Codez AI IDE</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="nav">
+    <div class="nav-group">
+      <div class="nav-title">New thread</div>
+      <div class="nav-item">Automations</div>
+      <div class="nav-item">Skills</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-title">Threads</div>
+      <div class="nav-item active">Batao project ke bare mein</div>
+      <div class="nav-item">Playground 3</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-title">Project Files</div>
+      <div id="files" class="files"></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="title">
+          <span class="title-main">Batao project ke bare mein</span>
+          <span class="title-sub">codez-ai-main</span>
+        </div>
+        <div class="status">Ready</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="pill" onclick="runAI('explain')">Explain</button>
+        <button class="pill" onclick="runAI('fix')">Fix Bug</button>
+        <button class="pill" onclick="runAI('optimize')">Optimize</button>
+        <button class="pill ghost" onclick="runCode()">Run</button>
+        <label class="file-btn">
+          Open Project
+          <input type="file" webkitdirectory onchange="loadProject(event)">
+        </label>
+      </div>
+    </header>
+
+    <section class="log-pane">
+      <div class="log-title">Run Log</div>
+      <div id="log" class="log-feed"></div>
+    </section>
+
+    <section class="workbench">
+      <div id="editor" class="editor"></div>
+      <div class="ai">
+        <div class="ai-header">
+          <h3>AI Chat</h3>
+          <div class="ai-tag">model: deepseek</div>
+        </div>
+        <div id="result" class="chat"></div>
+      </div>
+    </section>
+
+    <div id="terminal" class="terminal">Terminal ready...</div>
+
+    <section class="composer">
+      <textarea id="userNote" placeholder="Ask for follow-up changes..."></textarea>
+      <div class="composer-actions">
+        <button class="pill" onclick="runAI('explain')">Send</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
