@@ -3,7 +3,7 @@ async function askAI(){
 const prompt = document.getElementById("prompt").value;
 
 const response = await fetch(
-"https://codez-ai-production.up.railway.app",
+"https://codez-ai-production.up.railway.app/ai",
 {
 method:"POST",
 headers:{
