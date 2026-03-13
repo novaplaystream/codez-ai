@@ -1,13 +1,11 @@
 import express from "express";
-import fetch from "node-fetch";
 import cors from "cors";
+import fetch from "node-fetch";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-const API_KEY = process.env.OPENROUTER_KEY;
 
 app.post("/ai", async (req, res) => {
 
@@ -19,7 +17,7 @@ const response = await fetch(
 method: "POST",
 headers: {
 "Content-Type": "application/json",
-"Authorization": `Bearer ${API_KEY}`
+"Authorization": `Bearer ${process.env.OPENROUTER_KEY}`
 },
 body: JSON.stringify({
 model: "deepseek/deepseek-chat",
