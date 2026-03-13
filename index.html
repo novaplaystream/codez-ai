@@ -18,16 +18,16 @@ height:50px;
 background:#111827;
 display:flex;
 align-items:center;
-padding:0 20px;
+padding:0 15px;
+gap:8px;
 }
 
 .topbar button{
-margin-right:10px;
 background:#2563eb;
 border:none;
-padding:8px 15px;
-color:white;
+padding:6px 12px;
 border-radius:5px;
+color:white;
 cursor:pointer;
 }
 
@@ -36,23 +36,44 @@ display:flex;
 height:calc(100vh - 50px);
 }
 
+.files{
+width:200px;
+background:#020617;
+padding:10px;
+border-right:1px solid #1e293b;
+}
+
 .editor{
-flex:2;
+flex:1;
 }
 
 .ai{
-flex:1;
+width:320px;
 background:#020617;
-padding:15px;
 border-left:1px solid #1e293b;
+padding:15px;
 }
 
-.response{
-height:90%;
+.chat{
+height:80%;
 overflow:auto;
 background:#0f172a;
 padding:10px;
 border-radius:6px;
+}
+
+.tokenBox{
+margin-left:auto;
+display:flex;
+gap:5px;
+}
+
+input{
+background:#0f172a;
+border:1px solid #334155;
+color:white;
+padding:4px;
+border-radius:4px;
 }
 
 </style>
@@ -70,17 +91,37 @@ border-radius:6px;
 <button onclick="ai('optimize')">Optimize</button>
 <button onclick="ai('generate')">Generate</button>
 
+<button onclick="githubLogin()">GitHub Login</button>
+<button onclick="githubPull()">Pull</button>
+<button onclick="githubPush()">Push</button>
+
+<div class="tokenBox">
+
+<input id="tokenInput" placeholder="API Key">
+<button onclick="saveToken()">Save</button>
+
+</div>
+
 </div>
 
 <div class="layout">
+
+<div class="files">
+
+<b>Files</b>
+<div>index.html</div>
+<div>app.js</div>
+<div>server.js</div>
+
+</div>
 
 <div id="editor" class="editor"></div>
 
 <div class="ai">
 
-<h3>AI Output</h3>
+<h3>AI Chat</h3>
 
-<div id="result" class="response"></div>
+<div id="result" class="chat"></div>
 
 </div>
 
@@ -103,27 +144,100 @@ theme:"vs-dark"
 
 });
 
+function saveToken(){
+
+const token=document.getElementById("tokenInput").value;
+
+localStorage.setItem("AI_TOKEN",token);
+
+alert("Token Saved");
+
+}
+
 async function ai(mode){
 
-const code = editor.getValue();
+const key=localStorage.getItem("AI_TOKEN");
 
-const prompt = mode + " this code:\n\n" + code;
+const code=editor.getValue();
 
-const response = await fetch(
+const prompt=mode+" this code:\n\n"+code;
+
+const response=await fetch(
 "https://codez-ai-production.up.railway.app/ai",
 {
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":"application/json",
+"Authorization":key
 },
 body:JSON.stringify({prompt})
 }
 );
 
-const data = await response.json();
+const data=await response.json();
 
-document.getElementById("result").textContent =
-data.result;
+document.getElementById("result").textContent=data.result;
+
+}
+
+let githubToken="";
+
+function githubLogin(){
+
+const clientId="YOUR_GITHUB_CLIENT_ID";
+
+const url=`https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo`;
+
+window.open(url,"github","width=600,height=600");
+
+}
+
+async function githubPull(){
+
+const owner="novaplaystream";
+const repo="codez-ai";
+const file="index.html";
+
+const res=await fetch(
+`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+{
+headers:{Authorization:`token ${githubToken}`}
+}
+);
+
+const data=await res.json();
+
+editor.setValue(atob(data.content));
+
+window.sha=data.sha;
+
+}
+
+async function githubPush(){
+
+const owner="novaplaystream";
+const repo="codez-ai";
+const file="index.html";
+
+const content=editor.getValue();
+
+await fetch(
+`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+{
+method:"PUT",
+headers:{
+Authorization:`token ${githubToken}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+message:"update from IDE",
+content:btoa(content),
+sha:window.sha
+})
+}
+);
+
+alert("Code pushed");
 
 }
 
@@ -131,4 +245,3 @@ data.result;
 
 </body>
 </html>
-
