@@ -14,12 +14,13 @@ font-family:Arial;
 }
 
 .topbar{
-height:50px;
+height:45px;
 background:#111827;
 display:flex;
 align-items:center;
 padding:0 15px;
 gap:8px;
+border-bottom:1px solid #1e293b;
 }
 
 .topbar button{
@@ -33,14 +34,15 @@ cursor:pointer;
 
 .layout{
 display:flex;
-height:calc(100vh - 50px);
+height:calc(100vh - 45px);
 }
 
-.files{
-width:200px;
+.sidebar{
+width:220px;
 background:#020617;
-padding:10px;
 border-right:1px solid #1e293b;
+padding:10px;
+overflow:auto;
 }
 
 .editor{
@@ -48,24 +50,28 @@ flex:1;
 }
 
 .ai{
-width:320px;
+width:340px;
 background:#020617;
 border-left:1px solid #1e293b;
 padding:15px;
 }
 
 .chat{
-height:80%;
+height:70%;
 overflow:auto;
 background:#0f172a;
 padding:10px;
 border-radius:6px;
+font-family:monospace;
 }
 
-.tokenBox{
-margin-left:auto;
-display:flex;
-gap:5px;
+.terminal{
+height:120px;
+background:#020617;
+border-top:1px solid #1e293b;
+padding:10px;
+font-family:monospace;
+overflow:auto;
 }
 
 input{
@@ -74,6 +80,12 @@ border:1px solid #334155;
 color:white;
 padding:4px;
 border-radius:4px;
+}
+
+.file{
+cursor:pointer;
+color:#94a3b8;
+margin-top:5px;
 }
 
 </style>
@@ -90,28 +102,19 @@ border-radius:4px;
 <button onclick="ai('fix')">Fix Bug</button>
 <button onclick="ai('optimize')">Optimize</button>
 <button onclick="ai('generate')">Generate</button>
+<button onclick="detectLanguage()">Detect Language</button>
 
-<button onclick="githubLogin()">GitHub Login</button>
-<button onclick="githubPull()">Pull</button>
-<button onclick="githubPush()">Push</button>
-
-<div class="tokenBox">
-
-<input id="tokenInput" placeholder="API Key">
-<button onclick="saveToken()">Save</button>
-
-</div>
+<input type="file" webkitdirectory onchange="loadProject(event)">
+<button onclick="githubPull()">Git Pull</button>
+<button onclick="githubPush()">Git Push</button>
 
 </div>
 
 <div class="layout">
 
-<div class="files">
+<div class="sidebar" id="files">
 
-<b>Files</b>
-<div>index.html</div>
-<div>app.js</div>
-<div>server.js</div>
+<b>Project Files</b>
 
 </div>
 
@@ -124,6 +127,12 @@ border-radius:4px;
 <div id="result" class="chat"></div>
 
 </div>
+
+</div>
+
+<div class="terminal" id="terminal">
+
+Terminal ready...
 
 </div>
 
@@ -144,31 +153,56 @@ theme:"vs-dark"
 
 });
 
-function saveToken(){
+function loadProject(event){
 
-const token=document.getElementById("tokenInput").value;
+const files=event.target.files;
 
-localStorage.setItem("AI_TOKEN",token);
+const sidebar=document.getElementById("files");
 
-alert("Token Saved");
+sidebar.innerHTML="<b>Project Files</b>";
+
+for(let file of files){
+
+const div=document.createElement("div");
+
+div.textContent=file.webkitRelativePath;
+
+div.className="file";
+
+div.onclick=()=>openFile(file);
+
+sidebar.appendChild(div);
+
+}
+
+}
+
+function openFile(file){
+
+const reader=new FileReader();
+
+reader.onload=function(){
+
+editor.setValue(reader.result);
+
+};
+
+reader.readAsText(file);
 
 }
 
 async function ai(mode){
 
-const key=localStorage.getItem("AI_TOKEN");
-
 const code=editor.getValue();
 
-const prompt=mode+" this code:\n\n"+code;
+const prompt=mode+" this code and fix problems if any:\n\n"+code;
 
 const response=await fetch(
 "https://codez-ai-production.up.railway.app/ai",
 {
 method:"POST",
 headers:{
-"Content-Type":"application/json",
-"Authorization":key
+"Content-Type":"application/json"
 },
 body:JSON.stringify({prompt})
 }
@@ -180,64 +214,31 @@ document.getElementById("result").textContent=data.result;
 
 }
 
-let githubToken="";
+function detectLanguage(){
 
-function githubLogin(){
+const code=editor.getValue();
 
-const clientId="YOUR_GITHUB_CLIENT_ID";
+let lang="Unknown";
 
-const url=`https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo`;
+if(code.includes("def ")) lang="Python";
 
-window.open(url,"github","width=600,height=600");
+if(code.includes("console.log")) lang="JavaScript";
+
+if(code.includes("#include")) lang="C/C++";
+
+document.getElementById("result").textContent="Detected language: "+lang;
 
 }
 
 async function githubPull(){
 
-const owner="novaplaystream";
-const repo="codez-ai";
-const file="index.html";
-
-const res=await fetch(
-`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-{
-headers:{Authorization:`token ${githubToken}`}
-}
-);
-
-const data=await res.json();
-
-editor.setValue(atob(data.content));
-
-window.sha=data.sha;
+document.getElementById("terminal").textContent+="\nGit Pull executed";
 
 }
 
 async function githubPush(){
 
-const owner="novaplaystream";
-const repo="codez-ai";
-const file="index.html";
-
-const content=editor.getValue();
-
-await fetch(
-`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-{
-method:"PUT",
-headers:{
-Authorization:`token ${githubToken}`,
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-message:"update from IDE",
-content:btoa(content),
-sha:window.sha
-})
-}
-);
-
-alert("Code pushed");
+document.getElementById("terminal").textContent+="\nGit Push executed";
 
 }
 
