@@ -11,11 +11,12 @@ import MongoStore from "connect-mongo";
 import path from "path";
 import fs from "fs";
 import { simpleGit } from "simple-git";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const REPOS_DIR = path.join(process.cwd(), "repos");
+const FRONTEND_URL = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
 
 if (!fs.existsSync(REPOS_DIR)) {
   fs.mkdirSync(REPOS_DIR, { recursive: true });
@@ -82,7 +83,7 @@ app.use(session({
     : undefined,
   cookie: {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === "production" ? "none" : "lax"),
     secure: process.env.NODE_ENV === "production"
   }
 }));
@@ -170,6 +171,13 @@ function requireAuth(req, res, next) {
     return next();
   }
   res.status(401).json({ error: "Not authenticated" });
+}
+
+function redirectToClient(res, path) {
+  if (FRONTEND_URL) {
+    return res.redirect(FRONTEND_URL + path);
+  }
+  return res.redirect(path);
 }
 
 function repoIdFromUrl(repoUrl) {
@@ -290,14 +298,20 @@ async function callOpenRouter(prompt) {
 
 app.get("/auth/github", passport.authenticate("github", { scope: ["repo", "read:user", "user:email"] }));
 
-app.get("/auth/github/callback", passport.authenticate("github", { failureRedirect: "/?auth=fail" }), (req, res) => {
-  res.redirect("/?auth=ok");
+app.get("/auth/github/callback", (req, res, next) => {
+  passport.authenticate("github", (err, user) => {
+    if (err || !user) return redirectToClient(res, "/?auth=fail");
+    req.logIn(user, () => redirectToClient(res, "/?auth=ok"));
+  })(req, res, next);
 });
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/?auth=fail" }), (req, res) => {
-  res.redirect("/?auth=ok");
+app.get("/auth/google/callback", (req, res, next) => {
+  passport.authenticate("google", (err, user) => {
+    if (err || !user) return redirectToClient(res, "/?auth=fail");
+    req.logIn(user, () => redirectToClient(res, "/?auth=ok"));
+  })(req, res, next);
 });
 
 app.get("/api/me", (req, res) => {
@@ -514,3 +528,4 @@ app.post("/api/repos/:repoId/push", requireAuth, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Codez AI API running on ${PORT}`);
 });
+

@@ -2,6 +2,13 @@ require.config({
   paths:{vs:"https://unpkg.com/monaco-editor@0.45.0/min/vs"}
 });
 
+const API_BASE = (window.API_BASE)
+  || (location.hostname.endsWith("github.io") ? "https://codez-ai-production.up.railway.app" : "");
+
+function apiUrl(path){
+  return API_BASE ? API_BASE + path : path;
+}
+
 let currentRepoId = null;
 let currentFilePath = null;
 let attachments = [];
@@ -30,7 +37,7 @@ function addLog(text){
   row.innerHTML=`<span class="log-dot"></span><span>${new Date().toLocaleTimeString()} — ${text}</span>`;
   log.prepend(row);
 
-  fetch("/api/logs", {
+  fetch(apiUrl("/api/logs"), {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     credentials:"include",
@@ -40,7 +47,7 @@ function addLog(text){
 
 async function bootstrapAuth(){
   try{
-    const res = await fetch("/api/me", { credentials:"include" });
+    const res = await fetch(apiUrl("/api/me"), { credentials:"include" });
     const user = await res.json();
     const status = document.getElementById("authStatus");
     const btn = document.getElementById("loginBtn");
@@ -65,15 +72,15 @@ async function bootstrapAuth(){
 }
 
 function loginGithub(){
-  window.location.href = "/auth/github";
+  window.location.href = apiUrl("/auth/github");
 }
 
 function loginGoogle(){
-  window.location.href = "/auth/google";
+  window.location.href = apiUrl("/auth/google");
 }
 
 async function logoutGithub(){
-  await fetch("/api/logout", { method:"POST", credentials:"include" });
+  await fetch(apiUrl("/api/logout"), { method:"POST", credentials:"include" });
   await bootstrapAuth();
 }
 
@@ -122,7 +129,7 @@ async function loadHistory(){
   if(!el) return;
   el.innerHTML = "";
   try{
-    const res = await fetch("/api/chats", { credentials:"include" });
+    const res = await fetch(apiUrl("/api/chats"), { credentials:"include" });
     const chats = await res.json();
     chats.forEach(item => {
       const div = document.createElement("div");
@@ -143,7 +150,7 @@ async function loadRepos(){
   if(!el) return;
   el.innerHTML = "";
   try{
-    const res = await fetch("/api/repos", { credentials:"include" });
+    const res = await fetch(apiUrl("/api/repos"), { credentials:"include" });
     const repos = await res.json();
     repos.forEach(item => {
       const div = document.createElement("div");
@@ -177,7 +184,7 @@ async function runAI(mode){
 
   try{
     const response=await fetch(
-      "/ai",
+      apiUrl("/ai"),
       {
         method:"POST",
         headers:{
@@ -209,7 +216,7 @@ async function analyzeUrl(){
   status.textContent = "Analyzing...";
   out.textContent = "Working...";
   try{
-    const res = await fetch("/api/analyze-url", {
+    const res = await fetch(apiUrl("/api/analyze-url"), {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({ url })
@@ -253,7 +260,7 @@ async function cloneRepo(){
   }
 
   addLog("Cloning repo...");
-  const res = await fetch("/api/repos/clone", {
+  const res = await fetch(apiUrl("/api/repos/clone"), {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     credentials:"include",
@@ -272,7 +279,7 @@ async function cloneRepo(){
 
 async function loadRepoFiles(){
   if(!currentRepoId) return;
-  const res = await fetch(`/api/repos/${currentRepoId}/files`, { credentials:"include" });
+  const res = await fetch(apiUrl(`/api/repos/${currentRepoId}/files`), { credentials:"include" });
   const files = await res.json();
   const sidebar = document.getElementById("files");
   sidebar.innerHTML = "";
@@ -287,7 +294,7 @@ async function loadRepoFiles(){
 
 async function openRepoFile(path){
   if(!currentRepoId) return;
-  const res = await fetch(`/api/repos/${currentRepoId}/file?path=${encodeURIComponent(path)}`, { credentials:"include" });
+  const res = await fetch(apiUrl(`/api/repos/${currentRepoId}/file?path=${encodeURIComponent(path)}`), { credentials:"include" });
   const data = await res.json();
   if(data.error){
     addLog("Open failed: "+data.error);
@@ -304,7 +311,7 @@ async function saveFile(){
     return;
   }
   const content = editor.getValue();
-  const res = await fetch(`/api/repos/${currentRepoId}/file`, {
+  const res = await fetch(apiUrl(`/api/repos/${currentRepoId}/file`), {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     credentials:"include",
@@ -324,7 +331,7 @@ async function pullRepo(){
     return;
   }
   addLog("Pulling...");
-  const res = await fetch(`/api/repos/${currentRepoId}/pull`, {
+  const res = await fetch(apiUrl(`/api/repos/${currentRepoId}/pull`), {
     method:"POST",
     credentials:"include"
   });
@@ -344,7 +351,7 @@ async function pushRepo(){
   }
   const message = document.getElementById("commitMsg").value.trim() || "Update from Codez AI";
   addLog("Pushing...");
-  const res = await fetch(`/api/repos/${currentRepoId}/push`, {
+  const res = await fetch(apiUrl(`/api/repos/${currentRepoId}/push`), {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     credentials:"include",
