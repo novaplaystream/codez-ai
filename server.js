@@ -5,11 +5,13 @@ import fetch from "node-fetch";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github2";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import path from "path";
 import fs from "fs";
 import { simpleGit } from "simple-git";
+import cheerio from "cheerio";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,13 +31,18 @@ app.use(cors({
 app.use(express.json({ limit: "5mb" }));
 app.use(express.static(process.cwd()));
 
-if (process.env.MONGODB_URI) {
-  await mongoose.connect(process.env.MONGODB_URI);
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || "";
+if (mongoUri) {
+  await mongoose.connect(mongoUri);
 }
 
 const userSchema = new mongoose.Schema({
-  githubId: { type: String, unique: true },
+  provider: String,
+  providerId: { type: String, unique: true },
+  githubId: String,
+  googleId: String,
   username: String,
+  email: String,
   avatarUrl: String,
   accessToken: String
 });
@@ -70,8 +77,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "dev-secret",
   resave: false,
   saveUninitialized: false,
-  store: process.env.MONGODB_URI
-    ? MongoStore.create({ mongoUrl: process.env.MONGODB_URI })
+  store: mongoUri
+    ? MongoStore.create({ mongoUrl: mongoUri })
     : undefined,
   cookie: {
     httpOnly: true,
@@ -97,7 +104,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     callbackURL: process.env.GITHUB_CALLBACK_URL || `http://localhost:${PORT}/auth/github/callback`
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const existing = await User.findOne({ githubId: profile.id });
+      const existing = await User.findOne({ provider: "github", providerId: profile.id });
       if (existing) {
         existing.username = profile.username;
         existing.avatarUrl = profile.photos?.[0]?.value || "";
@@ -107,8 +114,44 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
       }
 
       const user = await User.create({
+        provider: "github",
+        providerId: profile.id,
         githubId: profile.id,
         username: profile.username,
+        email: profile.emails?.[0]?.value || "",
+        avatarUrl: profile.photos?.[0]?.value || "",
+        accessToken
+      });
+      done(null, user);
+    } catch (err) {
+      done(err);
+    }
+  }));
+}
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || `http://localhost:${PORT}/auth/google/callback`
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      const existing = await User.findOne({ provider: "google", providerId: profile.id });
+      if (existing) {
+        existing.username = profile.displayName;
+        existing.email = profile.emails?.[0]?.value || "";
+        existing.avatarUrl = profile.photos?.[0]?.value || "";
+        existing.accessToken = accessToken;
+        await existing.save();
+        return done(null, existing);
+      }
+
+      const user = await User.create({
+        provider: "google",
+        providerId: profile.id,
+        googleId: profile.id,
+        username: profile.displayName,
+        email: profile.emails?.[0]?.value || "",
         avatarUrl: profile.photos?.[0]?.value || "",
         accessToken
       });
@@ -172,9 +215,88 @@ async function listFiles(dir, root) {
   return results;
 }
 
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function resolveUrl(baseUrl, input) {
+  try {
+    return new URL(input, baseUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+function getOpenRouterKeys() {
+  return [
+    process.env.OPENROUTER_KEY,
+    process.env.OPENROUTER_KEY2,
+    process.env.OPENROUTER_KEY3,
+    process.env.OPENROUTER_KEY4
+  ].filter(Boolean);
+}
+
+async function callOpenRouter(prompt) {
+  const keys = getOpenRouterKeys();
+  if (keys.length === 0) {
+    return { ok: false, error: "Missing OpenRouter API keys" };
+  }
+
+  const retryableStatuses = new Set([401, 402, 403, 429, 500, 503]);
+  const errors = [];
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    try {
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: "deepseek/deepseek-chat",
+            messages: [{ role: "user", content: prompt }]
+          })
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok && data?.choices?.[0]?.message?.content) {
+        return { ok: true, result: data.choices[0].message.content, keyIndex: i + 1 };
+      }
+
+      const errMsg = data?.error?.message || data?.error || response.statusText || "Unknown error";
+      errors.push({ keyIndex: i + 1, status: response.status, error: errMsg });
+      if (!retryableStatuses.has(response.status)) {
+        break;
+      }
+    } catch (err) {
+      errors.push({ keyIndex: i + 1, status: 0, error: String(err) });
+    }
+  }
+
+  return { ok: false, error: "All keys failed", details: errors };
+}
+
 app.get("/auth/github", passport.authenticate("github", { scope: ["repo", "read:user", "user:email"] }));
 
 app.get("/auth/github/callback", passport.authenticate("github", { failureRedirect: "/?auth=fail" }), (req, res) => {
+  res.redirect("/?auth=ok");
+});
+
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/?auth=fail" }), (req, res) => {
   res.redirect("/?auth=ok");
 });
 
@@ -183,7 +305,8 @@ app.get("/api/me", (req, res) => {
   res.json({
     id: req.user.id,
     username: req.user.username,
-    avatarUrl: req.user.avatarUrl
+    avatarUrl: req.user.avatarUrl,
+    provider: req.user.provider
   });
 });
 
@@ -193,36 +316,104 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+app.post("/api/analyze-url", async (req, res) => {
+  const targetUrl = req.body.url || "";
+  if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+    return res.status(400).json({ error: "Invalid URL" });
+  }
+
+  try {
+    const pageRes = await fetchWithTimeout(targetUrl, {
+      headers: {
+        "User-Agent": "CodezAI-Analyzer/1.0"
+      }
+    });
+
+    const html = await pageRes.text();
+    const $ = cheerio.load(html);
+    const title = $("title").text().trim();
+
+    const scriptTags = $("script[src]").toArray().map(el => {
+      const src = $(el).attr("src");
+      return { src: resolveUrl(targetUrl, src) || src };
+    }).filter(s => s.src);
+
+    const styleTags = $("link[rel='stylesheet']").toArray().map(el => {
+      const href = $(el).attr("href");
+      return { href: resolveUrl(targetUrl, href) || href };
+    }).filter(s => s.href);
+
+    const buttons = $("button, [role='button'], input[type='button'], input[type='submit']").toArray().map(el => {
+      const $el = $(el);
+      return {
+        tag: el.tagName,
+        text: ($el.text() || $el.val() || "").trim(),
+        id: $el.attr("id") || "",
+        class: $el.attr("class") || "",
+        onclick: $el.attr("onclick") || ""
+      };
+    });
+
+    const issues = [];
+
+    const scriptChecks = await Promise.all(scriptTags.map(async s => {
+      if (!s.src) return { ...s, ok: false, status: 0 };
+      try {
+        const r = await fetchWithTimeout(s.src, { method: "HEAD" });
+        return { ...s, ok: r.ok, status: r.status };
+      } catch {
+        return { ...s, ok: false, status: 0 };
+      }
+    }));
+
+    const styleChecks = await Promise.all(styleTags.map(async s => {
+      if (!s.href) return { ...s, ok: false, status: 0 };
+      try {
+        const r = await fetchWithTimeout(s.href, { method: "HEAD" });
+        return { ...s, ok: r.ok, status: r.status };
+      } catch {
+        return { ...s, ok: false, status: 0 };
+      }
+    }));
+
+    const missingScripts = scriptChecks.filter(s => !s.ok);
+    const missingStyles = styleChecks.filter(s => !s.ok);
+
+    if (missingScripts.length) issues.push(`Missing/broken scripts: ${missingScripts.length}`);
+    if (missingStyles.length) issues.push(`Missing/broken stylesheets: ${missingStyles.length}`);
+
+    const buttonsWithoutHandlers = buttons.filter(b => !b.onclick && !b.text.toLowerCase().includes("submit"));
+    if (buttonsWithoutHandlers.length) {
+      issues.push(`Buttons without inline handler (static check): ${buttonsWithoutHandlers.length}`);
+    }
+
+    res.json({
+      url: targetUrl,
+      status: pageRes.status,
+      title,
+      scripts: scriptChecks,
+      styles: styleChecks,
+      buttons,
+      issues
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Analyze failed", details: String(err) });
+  }
+});
+
 app.post("/ai", async (req, res) => {
   const prompt = req.body.prompt || "";
 
-  try {
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENROUTER_KEY}`
-        },
-        body: JSON.stringify({
-          model: "deepseek/deepseek-chat",
-          messages: [{ role: "user", content: prompt }]
-        })
-      }
-    );
-
-    const data = await response.json();
-    const result = data?.choices?.[0]?.message?.content || "AI response error";
-
-    if (req.user) {
-      await Chat.create({ userId: req.user.id, prompt, response: result });
-    }
-
-    res.json({ result });
-  } catch (err) {
-    res.json({ result: "AI response error: " + err });
+  const result = await callOpenRouter(prompt);
+  if (!result.ok) {
+    return res.json({ result: "AI response error: " + JSON.stringify(result) });
   }
+
+  if (req.user) {
+    await Chat.create({ userId: req.user.id, prompt, response: result.result });
+  }
+
+  res.json({ result: result.result });
 });
 
 app.get("/api/chats", requireAuth, async (req, res) => {

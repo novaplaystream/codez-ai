@@ -19,6 +19,14 @@
       <div class="nav-item">Playground 3</div>
     </div>
     <div class="nav-group">
+      <div class="nav-title">Chat History</div>
+      <div id="history" class="files"></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-title">Repos</div>
+      <div id="repos" class="files"></div>
+    </div>
+    <div class="nav-group">
       <div class="nav-title">Repo Files</div>
       <div id="files" class="files"></div>
     </div>
@@ -39,6 +47,7 @@
         <button class="pill" onclick="runAI('optimize')">Optimize</button>
         <button class="pill ghost" onclick="runCode()">Run</button>
         <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
+        <button class="pill" id="googleBtn" onclick="loginGoogle()">Google Login</button>
       </div>
     </header>
 
@@ -49,6 +58,12 @@
       <input id="commitMsg" type="text" placeholder="Commit message">
       <button class="pill" onclick="pushRepo()">Commit + Push</button>
       <button class="pill ghost" onclick="saveFile()">Save File</button>
+    </section>
+
+    <section class="analyze-bar">
+      <input id="analyzeUrl" type="text" placeholder="https://example.com">
+      <button class="pill" onclick="analyzeUrl()">Analyze URL</button>
+      <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
     </section>
 
     <section class="log-pane">
@@ -76,6 +91,11 @@
         </div>
         <div id="result" class="chat"></div>
       </div>
+    </section>
+
+    <section class="analysis">
+      <div class="analysis-title">URL Analysis</div>
+      <pre id="analysisResult" class="analysis-result">No analysis yet.</pre>
     </section>
 
     <div id="terminal" class="terminal">Terminal ready...</div>

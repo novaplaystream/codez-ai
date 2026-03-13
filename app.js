@@ -44,15 +44,20 @@ async function bootstrapAuth(){
     const user = await res.json();
     const status = document.getElementById("authStatus");
     const btn = document.getElementById("loginBtn");
+    const gbtn = document.getElementById("googleBtn");
     if(user && user.username){
       status.textContent = "@"+user.username;
       btn.textContent = "Logout";
       btn.onclick = logoutGithub;
+      gbtn.style.display = "none";
       addLog("Logged in as "+user.username);
+      await loadHistory();
+      await loadRepos();
     }else{
       status.textContent = "Guest";
       btn.textContent = "GitHub Login";
       btn.onclick = loginGithub;
+      gbtn.style.display = "inline-flex";
     }
   }catch(e){
     addLog("Auth check failed");
@@ -61,6 +66,10 @@ async function bootstrapAuth(){
 
 function loginGithub(){
   window.location.href = "/auth/github";
+}
+
+function loginGoogle(){
+  window.location.href = "/auth/google";
 }
 
 async function logoutGithub(){
@@ -108,6 +117,50 @@ function updateAttachInfo(){
   }
 }
 
+async function loadHistory(){
+  const el = document.getElementById("history");
+  if(!el) return;
+  el.innerHTML = "";
+  try{
+    const res = await fetch("/api/chats", { credentials:"include" });
+    const chats = await res.json();
+    chats.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "nav-item";
+      div.textContent = (item.prompt || "").slice(0, 40) || "(empty)";
+      div.onclick = () => {
+        document.getElementById("result").textContent = item.response || "";
+      };
+      el.appendChild(div);
+    });
+  }catch(e){
+    el.textContent = "Failed to load";
+  }
+}
+
+async function loadRepos(){
+  const el = document.getElementById("repos");
+  if(!el) return;
+  el.innerHTML = "";
+  try{
+    const res = await fetch("/api/repos", { credentials:"include" });
+    const repos = await res.json();
+    repos.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "nav-item";
+      div.textContent = item.repoId || item.repoUrl || "repo";
+      div.onclick = async () => {
+        currentRepoId = item.repoId;
+        await loadRepoFiles();
+        addLog("Repo selected: "+currentRepoId);
+      };
+      el.appendChild(div);
+    });
+  }catch(e){
+    el.textContent = "Failed to load";
+  }
+}
+
 async function runAI(mode){
   const code=editor.getValue();
   const userNote=(document.getElementById("userNote") || {}).value || "";
@@ -138,9 +191,43 @@ async function runAI(mode){
     const data=await response.json();
     document.getElementById("result").textContent=data.result || "No response";
     addLog("Response received");
+    await loadHistory();
   }catch(e){
     document.getElementById("result").textContent="AI error: "+e;
     addLog("AI error");
+  }
+}
+
+async function analyzeUrl(){
+  const url = document.getElementById("analyzeUrl").value.trim();
+  const status = document.getElementById("analyzeStatus");
+  const out = document.getElementById("analysisResult");
+  if(!url){
+    status.textContent = "URL missing";
+    return;
+  }
+  status.textContent = "Analyzing...";
+  out.textContent = "Working...";
+  try{
+    const res = await fetch("/api/analyze-url", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if(data.error){
+      status.textContent = "Analyze failed";
+      out.textContent = JSON.stringify(data, null, 2);
+      addLog("Analyze failed: "+data.error);
+      return;
+    }
+    status.textContent = "Done";
+    out.textContent = JSON.stringify(data, null, 2);
+    addLog("Analyzed: "+url);
+  }catch(e){
+    status.textContent = "Analyze error";
+    out.textContent = String(e);
+    addLog("Analyze error");
   }
 }
 
@@ -180,6 +267,7 @@ async function cloneRepo(){
   currentRepoId = data.repoId;
   await loadRepoFiles();
   addLog("Repo ready: "+(data.repoId || ""));
+  await loadRepos();
 }
 
 async function loadRepoFiles(){
@@ -269,4 +357,3 @@ async function pushRepo(){
   }
   addLog("Push complete");
 }
-

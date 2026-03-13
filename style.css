@@ -18,7 +18,7 @@ body{
   margin:0;
   background:radial-gradient(1200px 600px at 20% -10%, #172554 0%, transparent 50%),
              radial-gradient(900px 600px at 90% 10%, #134e4a 0%, transparent 55%),
-             var(--bg);
+  var(--bg);
   color:var(--text);
   font-family:"Space Grotesk", system-ui, sans-serif;
 }
@@ -33,6 +33,7 @@ body{
   padding:18px 14px;
   background:linear-gradient(180deg, #0b111b 0%, #0a0f17 100%);
   border-right:1px solid var(--border);
+  overflow:auto;
 }
 
 .nav-group{margin-bottom:18px;}
@@ -65,10 +66,10 @@ body{
   background:#0a1220;
   border:1px dashed #1f2a3a;
   border-radius:10px;
-  min-height:120px;
+  min-height:80px;
   font-size:12px;
   color:var(--muted);
-  max-height:300px;
+  max-height:200px;
   overflow:auto;
 }
 
@@ -112,7 +113,7 @@ body{
   background:#0b1220;
 }
 
-.topbar-actions{display:flex;align-items:center;gap:8px;}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
 .pill{
   background:linear-gradient(180deg, #1f2937 0%, #111827 100%);
@@ -168,6 +169,30 @@ body{
 .repo-bar #repoUrl{min-width:260px; flex:1;}
 
 .repo-bar #commitMsg{min-width:200px; flex:1;}
+
+.analyze-bar{
+  display:flex;
+  gap:8px;
+  padding:0 18px 6px 18px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.analyze-bar input{
+  background:#0b1220;
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:12px;
+  min-width:260px;
+  flex:1;
+}
+
+.analyze-status{
+  font-size:11px;
+  color:var(--muted);
+}
 
 .log-pane{
   padding:8px 18px 0 18px;
@@ -272,6 +297,30 @@ body{
   font-size:12px;
   line-height:1.6;
   color:#e2e8f0;
+}
+
+.analysis{
+  padding:0 18px 10px 18px;
+}
+
+.analysis-title{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.analysis-result{
+  background:#0b1220;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:12px;
+  color:#d1d5db;
+  min-height:120px;
+  white-space:pre-wrap;
 }
 
 .terminal{
