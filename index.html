@@ -1,82 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Codez AI Assistant</title>
+<title>Codez AI</title>
 
 <style>
 
 body{
-background:black;
+margin:0;
+background:#0b0f19;
 color:white;
 font-family:Arial;
-text-align:center;
 }
 
-#prompt{
-width:90%;
-height:400px;
+header{
+padding:15px 30px;
+background:#111827;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+display:flex;
+height:90vh;
+}
+
+.editor{
+flex:1;
+padding:20px;
+}
+
+textarea{
+width:100%;
+height:70vh;
 background:#0f172a;
-color:white;
-font-size:16px;
-padding:15px;
-border-radius:8px;
+color:#e2e8f0;
 border:1px solid #334155;
+border-radius:8px;
+padding:15px;
 font-family:monospace;
+font-size:15px;
+}
+
+.controls{
+margin-top:10px;
 }
 
 button{
-padding:12px 24px;
-font-size:16px;
 background:#2563eb;
-color:white;
 border:none;
+padding:10px 18px;
+margin:5px;
 border-radius:6px;
+color:white;
 cursor:pointer;
 }
 
-#result{
-width:90%;
-min-height:200px;
-margin-top:20px;
+button:hover{
+background:#1d4ed8;
+}
+
+.ai-panel{
+width:35%;
+background:#020617;
+padding:20px;
+border-left:1px solid #1e293b;
+}
+
+.response{
 background:#0f172a;
-color:white;
 padding:15px;
 border-radius:8px;
-border:1px solid #334155;
+height:70vh;
+overflow:auto;
+font-family:monospace;
 }
 
 </style>
 
-
-<title>Codez AI</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
 </head>
 
-<body class="bg-black text-white">
+<body>
 
-<div class="max-w-4xl mx-auto p-6">
+<header>⚡ Codez AI — Coding Assistant</header>
 
-<h1 class="text-3xl font-bold text-blue-400">
-Codez AI Assistant
-</h1>
+<div class="container">
 
-<textarea id="prompt" placeholder="Paste code or ask AI..." rows="20"></textarea>
+<div class="editor">
 
+<textarea id="prompt" placeholder="Paste code or ask AI..."></textarea>
 
-<button
-onclick="askAI()"
-class="mt-4 bg-blue-600 px-4 py-2 rounded">
+<div class="controls">
 
-Ask AI
+<button onclick="askAI('explain')">Explain</button>
+<button onclick="askAI('fix')">Fix Bug</button>
+<button onclick="askAI('optimize')">Optimize</button>
+<button onclick="askAI('generate')">Generate</button>
 
-</button>
+</div>
 
-<pre
-id="result"
-class="bg-gray-900 p-4 mt-6 rounded">
-</pre>
+</div>
+
+<div class="ai-panel">
+
+<h3>AI Response</h3>
+
+<div id="result" class="response"></div>
+
+</div>
 
 </div>
 
@@ -84,6 +114,3 @@ class="bg-gray-900 p-4 mt-6 rounded">
 
 </body>
 </html>
-
-
-
