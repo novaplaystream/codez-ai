@@ -34,11 +34,15 @@ messages:[
 );
 
 const data = await response.json();
-
+if(data.choices && data.choices.length > 0){
 res.json({
 result:data.choices[0].message.content
 });
-
+}else{
+res.json({
+result:"AI response error: " + JSON.stringify(data)
+});
+}
 });
 
 app.listen(3000,()=>{
