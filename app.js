@@ -3,7 +3,7 @@ async function askAI(){
 const prompt = document.getElementById("prompt").value;
 
 const response = await fetch(
-"http://localhost:3000/ai",
+"https://codez-ai.onrender.com/ai",
 {
 method:"POST",
 headers:{
