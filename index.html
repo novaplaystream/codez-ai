@@ -2,16 +2,28 @@
 <html>
 <head>
 
+<meta charset="UTF-8">
 <title>Codez AI</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
 <style>
+
 body{
 background:#0d1117;
 color:white;
 font-family:monospace;
 }
+
+textarea{
+resize:none;
+}
+
 </style>
 
 </head>
@@ -24,54 +36,46 @@ font-family:monospace;
 Codez AI
 </h1>
 
-<textarea id="code"
-class="w-full h-40 bg-gray-900 p-4 rounded"
-placeholder="Paste code here..."></textarea>
+<textarea id="codeInput"
+class="w-full h-40 bg-[#161b22] border border-gray-700 p-4 rounded"
+placeholder="Paste your code here..."></textarea>
 
 <div class="flex gap-3 mt-4">
 
-<button onclick="explain()"
+<button onclick="runAI('explain')"
 class="bg-blue-600 px-4 py-2 rounded">
 Explain
 </button>
 
-<button onclick="debug()"
+<button onclick="runAI('debug')"
 class="bg-red-600 px-4 py-2 rounded">
 Debug
 </button>
 
-<button onclick="optimize()"
+<button onclick="runAI('optimize')"
 class="bg-green-600 px-4 py-2 rounded">
 Optimize
 </button>
 
 </div>
 
-<pre id="output"
-class="bg-black p-4 mt-6 rounded"></pre>
+<div class="mt-6">
+
+<h2 class="text-xl mb-2 text-gray-300">
+AI Response
+</h2>
+
+<pre class="bg-[#161b22] p-4 rounded border border-gray-700">
+
+<code id="output"></code>
+
+</pre>
 
 </div>
 
-<script>
+</div>
 
-function explain(){
-let code=document.getElementById("code").value
-
-document.getElementById("output").textContent=
-"AI Explanation:\\n\\nYour code was analyzed."
-}
-
-function debug(){
-document.getElementById("output").textContent=
-"No bugs detected."
-}
-
-function optimize(){
-document.getElementById("output").textContent=
-"Optimization suggestion generated."
-}
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
