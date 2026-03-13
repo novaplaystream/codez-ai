@@ -33,10 +33,7 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.static(process.cwd()));
 
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || "";
-if (mongoUri) {
-  await mongoose.connect(mongoUri);
-}
-
+if (mongoUri) {\r\n  try {\r\n    await mongoose.connect(mongoUri);\r\n    console.log("MongoDB connected");\r\n  } catch (err) {\r\n    console.error("MongoDB connection failed", err);\r\n  }\r\n}\r\n\r\nprocess.on("unhandledRejection", (err) => {\r\n  console.error("Unhandled rejection", err);\r\n});\r\nprocess.on("uncaughtException", (err) => {\r\n  console.error("Uncaught exception", err);\r\n});\r\n
 const userSchema = new mongoose.Schema({
   provider: String,
   providerId: { type: String, unique: true },
@@ -528,5 +525,6 @@ app.post("/api/repos/:repoId/push", requireAuth, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Codez AI API running on ${PORT}`);
 });
+
 
 
