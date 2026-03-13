@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex - AI Code Assistant</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <style>
+* {margin: 0; padding: 0; box-sizing: border-box;}
+html, body {height: 100%; width: 100%; font-family: 'Fira Code', 'Monaco', 'Menlo', monospace;}
+::-webkit-scrollbar {width: 8px; height: 8px;}
+::-webkit-scrollbar-track {background: #1a1a2e;}
+::-webkit-scrollbar-thumb {background: #4a4a6a; border-radius: 4px;}
+::-webkit-scrollbar-thumb:hover {background: #6a6a8a;}
+.chat-message {animation: slideIn 0.3s ease-out;}
+@keyframes slideIn {from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);}}
+.code-block {background: #0d1117; border-radius: 8px; overflow: hidden; border: 1px solid #30363d;}
+.hljs {background: #0d1117 !important; padding: 16px !important; font-size: 13px; line-height: 1.6;}
+.copy-button {transition: all 0.2s ease;}
+.copy-button:hover {background: #238636; transform: scale(1.05);}
+.language-selector {appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 8px center; background-size: 20px; padding-right: 32px;}
+.message-input {resize: none; max-height: 120px;}
+.loading-dots {display: inline-flex; gap: 4px; padding: 8px 0;}
+.loading-dots span {width: 8px; height: 8px; border-radius: 50%; background: #58a6ff; animation: pulse 1.4s infinite;}
+.loading-dots span:nth-child(2) {animation-delay: 0.2s;}
+.loading-dots span:nth-child(3) {animation-delay: 0.4s;}
+@keyframes pulse {0%, 60%, 100% {opacity: 0.3;} 30% {opacity: 1;}}
+.prompt-suggestion {cursor: pointer; transition: all 0.2s ease;}
+.prompt-suggestion:hover {transform: translateX(4px); background: rgba(88, 166, 255, 0.1);}
+.feature-badge {font-size: 12px; padding: 4px 12px; border-radius: 12px; display: inline-block; background: rgba(88, 166, 255, 0.1); color: #58a6ff; border: 1px solid rgba(88, 166, 255, 0.2);}
+.settings-panel-overlay {position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 30; transition: opacity 0.3s ease;}
+.settings-panel-overlay.hidden {display: none;}
+.settings-panel {position: fixed; right: 0; top: 0; height: 100%; width: 320px; background: #0d1117; border-left: 1px solid #30363d; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5); z-index: 40; transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto;}
+.settings-panel.open {transform: translateX(0);}
+  </style>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] text-white">
+  <div class="w-full h-full flex flex-col"><!-- Header -->
+   <header class="border-b border-[#30363d] bg-[#0d1117]/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+     <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 bg-gradient-to-br from-[#00d4ff] to-[#6f2bff] rounded-lg flex items-center justify-center shadow-lg shadow-[#00d4ff]/50 relative overflow-hidden">
+        <svg viewbox="0 0 100 100" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg"><defs>
+          <lineargradient id="zGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+           <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+          </lineargradient>
+          <filter id="glow">
+           <fegaussianblur stddeviation="1.5" result="coloredBlur" />
+           <femerge>
+            <femergenode in="coloredBlur" />
+            <femergenode in="SourceGraphic" />
+           </femerge>
+          </filter>
+         </defs><path d="M 25 20 L 75 20 L 35 80 L 75 80" stroke="url(#zGradient)" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" /><path d="M 50 30 L 55 45 L 48 45 L 60 65" stroke="url(#zGradient)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow)" opacity="0.8" />
+        </svg>
+       </div>
+       <div>
+        <h1 id="appTitle" class="text-3xl font-black bg-gradient-to-r from-[#00d4ff] via-[#0099ff] to-[#6f2bff] bg-clip-text text-transparent tracking-tight">Codez</h1>
+        <p class="text-xs text-[#00d4ff] font-semibold">Next-Gen AI Code Intelligence • 30+ Languages • Real-time Analysis</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-2"><span class="feature-badge" style="background: rgba(0, 212, 255, 0.15); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">Z Edition</span> <button id="settingsToggle" onclick="toggleSettings()" class="bg-[#161b22] border border-[#00d4ff] hover:bg-[#1a2332] text-white px-3 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2" title="Settings"> <i data-lucide="settings" class="w-4 h-4"></i> <span class="hidden sm:inline">Settings</span> </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <div class="flex-1 overflow-hidden flex"><!-- Chat Area -->
+    <div class="flex-1 flex flex-col bg-[#0d1117]"><!-- Messages Container -->
+     <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"><!-- Welcome Message -->
+      <div class="max-w-3xl mx-auto w-full">
+       <div class="text-center py-12">
+        <div class="w-20 h-20 bg-gradient-to-br from-[#00d4ff] to-[#6f2bff] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-[#00d4ff]/30"><i data-lucide="sparkles" class="w-10 h-10"></i>
+        </div>
+        <h2 class="text-3xl font-bold mb-3">Welcome to Codez</h2>
+        <p class="text-[#8b949e] mb-8 max-w-xl mx-auto">Transform your code with AI-powered intelligence. Generate, explain, fix, and optimize code instantly.</p><!-- Quick Actions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+         <div class="p-4 bg-[#161b22] border border-[#30363d] rounded-lg hover:border-[#00d4ff] transition text-left cursor-pointer hover:bg-[#1a2332]" onclick="setSuggestion('Create a Python function to calculate fibonacci numbers')">
+          <div class="flex items-center gap-2 mb-2"><i data-lucide="zap" class="w-4 h-4 text-[#00d4ff]"></i> <span class="font-semibold text-sm">Generate</span>
+          </div>
+          <p class="text-xs text-[#8b949e]">Create code from scratch</p>
+         </div>
+         <div class="p-4 bg-[#161b22] border border-[#30363d] rounded-lg hover:border-[#00d4ff] transition text-left cursor-pointer hover:bg-[#1a2332]" onclick="setSuggestion('Explain what this code does: function sum(a, b) { return a + b; }')">
+          <div class="flex items-center gap-2 mb-2"><i data-lucide="book-open" class="w-4 h-4 text-[#00d4ff]"></i> <span class="font-semibold text-sm">Explain</span>
+          </div>
+          <p class="text-xs text-[#8b949e]">Understand code snippets</p>
+         </div>
+         <div class="p-4 bg-[#161b22] border border-[#30363d] rounded-lg hover:border-[#00d4ff] transition text-left cursor-pointer hover:bg-[#1a2332]" onclick="setSuggestion('Fix this error: TypeError - Cannot read property of undefined')">
+          <div class="flex items-center gap-2 mb-2"><i data-lucide="bug" class="w-4 h-4 text-[#00d4ff]"></i> <span class="font-semibold text-sm">Debug</span>
+          </div>
+          <p class="text-xs text-[#8b949e]">Solve errors and bugs</p>
+         </div>
+         <div class="p-4 bg-[#161b22] border border-[#30363d] rounded-lg hover:border-[#00d4ff] transition text-left cursor-pointer hover:bg-[#1a2332]" onclick="setSuggestion('Optimize this code for performance')">
+          <div class="flex items-center gap-2 mb-2"><i data-lucide="rocket" class="w-4 h-4 text-[#00d4ff]"></i> <span class="font-semibold text-sm">Optimize</span>
+          </div>
+          <p class="text-xs text-[#8b949e]">Improve code quality</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Input Area -->
+     <div class="border-t border-[#30363d] bg-[#0d1117] p-4 sm:p-6">
+      <div class="max-w-3xl mx-auto"><!-- Language & AI Mode Selector -->
+       <div class="mb-4 space-y-3">
+        <div class="flex gap-2 flex-wrap items-center"><span class="text-xs text-[#8b949e] font-semibold">Language:</span> <select id="languageSelect" class="language-selector bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-sm hover:border-[#58a6ff] focus:outline-none focus:border-[#58a6ff] font-semibold"> <option value="python">🐍 Python</option> <option value="javascript">📜 JavaScript</option> <option value="typescript">🔷 TypeScript</option> <option value="java">☕ Java</option> <option value="cpp">⚙️ C++</option> <option value="csharp">🎮 C#</option> <option value="go">🐹 Go</option> <option value="rust">🦀 Rust</option> <option value="php">🐘 PHP</option> <option value="ruby">💎 Ruby</option> <option value="swift">🍎 Swift</option> <option value="kotlin">📱 Kotlin</option> <option value="html">🌐 HTML</option> <option value="css">🎨 CSS</option> <option value="sql">🗄️ SQL</option> <option value="bash">🖥️ Bash</option> <option value="r">📊 R</option> <option value="matlab">🧮 MATLAB</option> </select>
+        </div>
+        <div class="flex gap-2 flex-wrap items-center"><span class="text-xs text-[#8b949e] font-semibold">AI Mode:</span>
+         <div class="flex gap-2"><button onclick="setAIMode('explain')" class="ai-mode-btn bg-gradient-to-r from-[#00d4ff] to-[#6f2bff] text-white px-3 py-1.5 rounded text-xs font-semibold transition border border-[#00d4ff]" data-mode="explain"> <i data-lucide="book-open" class="w-3 h-3 inline mr-1"></i>Explain </button> <button onclick="setAIMode('optimize')" class="ai-mode-btn bg-[#161b22] text-[#00d4ff] px-3 py-1.5 rounded text-xs font-semibold transition border border-[#30363d] hover:border-[#00d4ff]" data-mode="optimize"> <i data-lucide="rocket" class="w-3 h-3 inline mr-1"></i>Optimize </button> <button onclick="setAIMode('debug')" class="ai-mode-btn bg-[#161b22] text-[#00d4ff] px-3 py-1.5 rounded text-xs font-semibold transition border border-[#30363d] hover:border-[#00d4ff]" data-mode="debug"> <i data-lucide="bug" class="w-3 h-3 inline mr-1"></i>Debug </button> <button onclick="setAIMode('refactor')" class="ai-mode-btn bg-[#161b22] text-[#00d4ff] px-3 py-1.5 rounded text-xs font-semibold transition border border-[#30363d] hover:border-[#00d4ff]" data-mode="refactor"> <i data-lucide="sparkles" class="w-3 h-3 inline mr-1"></i>Refactor </button>
+         </div>
+        </div>
+       </div><!-- Input Box -->
+       <div class="flex gap-2"><textarea id="promptInput" class="message-input flex-1 bg-[#161b22] border border-[#30363d] text-white placeholder-[#6e7681] px-4 py-3 rounded-lg focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/20 text-sm" placeholder="Paste your code or ask anything... (Shift+Enter to send)" rows="4"></textarea> <button id="sendButton" onclick="sendMessage()" class="bg-gradient-to-r from-[#58a6ff] to-[#1f6feb] hover:from-[#79c0ff] hover:to-[#388bfd] text-white px-4 py-3 rounded-lg font-semibold transition transform hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap" title="Send message (Shift+Enter)"> <i data-lucide="send" class="w-5 h-5"></i> </button>
+       </div>
+       <p class="text-xs text-[#6e7681] mt-2">💡 Tip: Drag &amp; drop files • Paste code • Shift+Enter to send</p><!-- File & Image Upload Section -->
+       <div class="mt-4 border-t border-[#30363d] pt-4 space-y-3"><label class="text-xs font-semibold text-[#8b949e] block">📁 Upload Files &amp; Images</label>
+        <div class="flex gap-2"><input type="file" id="fileInput" class="flex-1 bg-[#161b22] border border-[#30363d] text-white placeholder-[#6e7681] px-4 py-2 rounded-lg focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/20 text-sm file:bg-[#238636] file:text-white file:border-0 file:rounded file:px-3 file:py-1 file:mr-2 file:cursor-pointer file:font-semibold"> <button onclick="analyzeFile()" class="bg-gradient-to-r from-[#58a6ff] to-[#1f6feb] hover:from-[#79c0ff] hover:to-[#388bfd] text-white px-4 py-2 rounded-lg font-semibold transition transform hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap text-sm"> <i data-lucide="file-text" class="w-4 h-4 mr-2"></i> Analyze </button>
+        </div>
+        <div class="flex gap-2"><input type="file" id="mainImageInput" accept="image/*" class="flex-1 bg-[#161b22] border border-[#30363d] text-white placeholder-[#6e7681] px-4 py-2 rounded-lg focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/20 text-sm file:bg-[#00d4ff] file:text-black file:border-0 file:rounded file:px-3 file:py-1 file:mr-2 file:cursor-pointer file:font-semibold"> <button onclick="uploadMainImage()" class="bg-gradient-to-r from-[#00d4ff] to-[#0099ff] hover:from-[#00b3d4] hover:to-[#0077cc] text-black px-4 py-2 rounded-lg font-semibold transition transform hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap text-sm"> <i data-lucide="image" class="w-4 h-4 mr-2"></i> Upload Image </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Settings Panel Overlay -->
+  <div id="settingsOverlay" class="settings-panel-overlay hidden" onclick="closeSettings()"></div><!-- Settings Panel -->
+  <div id="githubPanel" class="settings-panel"><!-- Panel Header -->
+   <div class="border-b border-[#30363d] p-4 flex items-center justify-between sticky top-0 bg-[#0d1117]">
+    <h3 class="font-semibold text-[#e6edf3] flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4 text-[#00d4ff]"></i> Codez Settings</h3><button onclick="closeSettings()" class="text-[#8b949e] hover:text-white transition"> <i data-lucide="x" class="w-4 h-4"></i> </button>
+   </div><!-- Panel Content -->
+   <div class="p-4 space-y-4"><!-- GitHub Integration -->
+    <div id="authSection" class="space-y-3"><label class="text-xs font-semibold text-[#00d4ff] block flex items-center gap-2"> <i data-lucide="github" class="w-4 h-4"></i> GitHub Push/Pull </label> <input type="password" id="githubToken" placeholder="Enter GitHub token (ghp_...)" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#00d4ff] placeholder-[#6e7681]"> <button onclick="validateGithubToken()" class="w-full bg-gradient-to-r from-[#00d4ff] to-[#6f2bff] text-white px-3 py-2 rounded text-xs font-semibold hover:opacity-90 transition"> Authenticate </button>
+    </div>
+    <div id="authenticatedSection" class="hidden space-y-3">
+     <div class="bg-[#1b3d1b] border border-[#3fb950] p-3 rounded">
+      <p class="text-xs text-[#3fb950] flex items-center gap-2"><i data-lucide="check" class="w-3 h-3"></i> Authenticated ✓</p>
+     </div><input type="text" id="repoName" placeholder="username/repo" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#58a6ff] placeholder-[#6e7681]"> <input type="text" id="branchName" placeholder="branch (default: main)" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#58a6ff] placeholder-[#6e7681]"> <input type="text" id="filePath" placeholder="path/to/file.py" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#58a6ff] placeholder-[#6e7681]"> <input type="text" id="commitMessage" placeholder="Commit message" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#58a6ff] placeholder-[#6e7681]">
+     <div class="flex gap-2"><button onclick="pushToGithub()" class="flex-1 bg-gradient-to-r from-[#58a6ff] to-[#1f6feb] text-white px-3 py-2 rounded text-xs font-semibold hover:opacity-90 transition flex items-center justify-center gap-1"> <i data-lucide="upload" class="w-3 h-3"></i>Push </button> <button onclick="pullFromGithub()" class="flex-1 bg-gradient-to-r from-[#00d4ff] to-[#6f2bff] text-white px-3 py-2 rounded text-xs font-semibold hover:opacity-90 transition flex items-center justify-center gap-1"> <i data-lucide="download" class="w-3 h-3"></i>Pull </button>
+     </div><button onclick="logoutGithub()" class="w-full bg-[#161b22] border border-[#da3633] text-[#f85149] px-3 py-2 rounded text-xs font-semibold hover:bg-[#2d1f1f] transition"> Logout </button>
+    </div>
+    <div id="statusMessage" class="hidden bg-[#161b22] border border-[#30363d] p-3 rounded text-xs text-[#8b949e] text-center"></div><!-- Code Chat Section -->
+    <div class="space-y-3 border-t border-[#30363d] pt-3"><label class="text-xs font-semibold text-[#00d4ff] block flex items-center gap-2"> <i data-lucide="message-circle" class="w-4 h-4"></i> Code Chat </label>
+     <div id="codeChat" class="bg-[#161b22] border border-[#30363d] rounded h-48 flex flex-col">
+      <div id="codeChatMessages" class="flex-1 overflow-y-auto p-2 space-y-2 text-xs">
+       <div class="text-[#6e7681] text-center py-4">
+        Start a code discussion...
+       </div>
+      </div>
+      <div class="border-t border-[#30363d] p-2 space-y-2">
+       <div class="flex gap-1">
+        <input type="text" id="codeChatInput" placeholder="Ask about code..." class="flex-1 bg-[#0d1117] border border-[#30363d] text-white px-2 py-1 rounded text-xs focus:outline-none focus:border-[#00d4ff] placeholder-[#6e7681]"> <button onclick="sendCodeChat()" class="bg-[#238636] hover:bg-[#2ea043] text-white px-2 py-1 rounded text-xs font-semibold transition"> <i data-lucide="send" class="w-3 h-3"></i> </button>
+       </div>
+       <div class="flex gap-1">
+        <input type="file" id="codeChatImageInput" accept="image/*" class="flex-1 bg-[#0d1117] border border-[#30363d] text-white px-2 py-1 rounded text-xs focus:outline-none focus:border-[#00d4ff] file:bg-[#238636] file:text-white file:border-0 file:rounded file:px-2 file:py-0.5 file:cursor-pointer file:font-semibold file:text-xs"> <button onclick="uploadChatImage()" class="bg-[#00d4ff] hover:bg-[#00b3d4] text-black px-2 py-1 rounded text-xs font-semibold transition"> <i data-lucide="image" class="w-3 h-3"></i> </button>
+       </div>
+      </div>
+     </div>
+    </div><!-- Theme Settings -->
+    <div class="space-y-3 border-t border-[#30363d] pt-3"><label class="text-xs font-semibold text-[#8b949e] block">🎨 Theme</label> <select id="themeSelect" onchange="changeTheme(this.value)" class="w-full bg-[#161b22] border border-[#30363d] text-white px-3 py-2 rounded text-xs focus:outline-none focus:border-[#58a6ff]"> <option value="dark">Dark Mode</option> <option value="light">Light Mode</option> <option value="auto">Auto</option> </select>
+    </div><!-- Code Formatting -->
+    <div class="space-y-3 border-t border-[#30363d] pt-3"><label class="text-xs font-semibold text-[#8b949e] block">⚙️ Code Formatting</label>
+     <div class="space-y-2"><label class="flex items-center gap-2 cursor-pointer"> <input type="checkbox" id="autoFormatCode" checked class="w-4 h-4 rounded bg-[#161b22] border border-[#30363d]"> <span class="text-xs text-[#8b949e]">Auto Format Code</span> </label> <label class="flex items-center gap-2 cursor-pointer"> <input type="checkbox" id="showLineNumbers" checked class="w-4 h-4 rounded bg-[#161b22] border border-[#30363d]"> <span class="text-xs text-[#8b949e]">Show Line Numbers</span> </label>
+     </div>
+    </div><!-- Statistics -->
+    <div class="space-y-3 border-t border-[#30363d] pt-3"><label class="text-xs font-semibold text-[#8b949e] block">📊 Statistics</label>
+     <div class="grid grid-cols-2 gap-2">
+      <div class="bg-[#161b22] p-2 rounded border border-[#30363d]">
+       <p class="text-[8px] text-[#6e7681]">Messages</p>
+       <p id="messageCount" class="text-[#58a6ff] font-bold">0</p>
+      </div>
+      <div class="bg-[#161b22] p-2 rounded border border-[#30363d]">
+       <p class="text-[8px] text-[#6e7681]">Files</p>
+       <p id="fileCount" class="text-[#58a6ff] font-bold">0</p>
+      </div>
+     </div>
+    </div><!-- About -->
+    <div class="space-y-2 border-t border-[#30363d] pt-3">
+     <p class="text-xs text-[#8b949e]">Codex - Premium AI Code Assistant v2.0</p>
+     <p class="text-xs text-[#6e7681]">Professional code intelligence with 30+ languages. Refactor, debug, optimize, and analyze code in real-time.</p>
+    </div>
+   </div>
+  </div>
+  <script>
+let conversationHistory = [];
+let isLoading = false;
+let isGithubAuthenticated = false;
+let githubToken = '';
+let codeChatHistory = [];
+let messageCount = 0;
+let fileCount = 0;
+
+const elementConfig = {app_title: 'AI Code Assistant'};
+
+window.elementSdk?.init({
+defaultConfig: elementConfig,
+onConfigChange: async (config) => {},
+mapToCapabilities: (config) => ({recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined}),
+mapToEditPanelValues: (config) => new Map([['app_title', config.app_title]])
+});
+
+function toggleSettings() {
+const panel = document.getElementById('githubPanel');
+const overlay = document.getElementById('settingsOverlay');
+panel.classList.toggle('open');
+overlay.classList.toggle('hidden');
+}
+
+function closeSettings() {
+const panel = document.getElementById('githubPanel');
+const overlay = document.getElementById('settingsOverlay');
+panel.classList.remove('open');
+overlay.classList.add('hidden');
+}
+
+function validateGithubToken() {
+const token = document.getElementById('githubToken').value.trim();
+if (!token) {
+showStatus('Please enter a GitHub token', 'error');
+return;
+}
+if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+showStatus('Invalid token format. Must start with ghp_ or github_pat_', 'error');
+return;
+}
+githubToken = token;
+isGithubAuthenticated = true;
+document.getElementById('authSection').classList.add('hidden');
+document.getElementById('authenticatedSection').classList.remove('hidden');
+showStatus('✓ Successfully authenticated!', 'success');
+localStorage.setItem('github_token', token);
+}
+
+function showStatus(message, type = 'info') {
+const statusDiv = document.getElementById('statusMessage');
+statusDiv.textContent = message;
+statusDiv.classList.remove('hidden');
+if (type === 'success') {
+statusDiv.className = 'bg-[#1b3d1b] border border-[#3fb950] p-3 rounded text-xs text-[#3fb950] text-center';
+} else if (type === 'error') {
+statusDiv.className = 'bg-[#2d1f1f] border border-[#da3633] p-3 rounded text-xs text-[#f85149] text-center';
+} else {
+statusDiv.className = 'bg-[#161b22] border border-[#30363d] p-3 rounded text-xs text-[#8b949e] text-center';
+}
+setTimeout(() => {statusDiv.classList.add('hidden');}, 3000);
+}
+
+function pushToGithub() {
+if (!isGithubAuthenticated) {
+showStatus('Please authenticate first', 'error');
+return;
+}
+const repo = document.getElementById('repoName').value.trim();
+const branch = document.getElementById('branchName').value.trim() || 'main';
+const filePath = document.getElementById('filePath').value.trim();
+const commitMessage = document.getElementById('commitMessage').value.trim() || 'Add generated code';
+if (!repo || !filePath) {
+showStatus('Please enter repository and file path', 'error');
+return;
+}
+const codeBlock = document.querySelector('.code-block code');
+if (!codeBlock) {
+showStatus('No code to push. Generate code first!', 'error');
+return;
+}
+const code = codeBlock.textContent;
+showStatus('📤 Pushing to GitHub...', 'info');
+setTimeout(() => {
+const pushResult = `✓ Push Successful!\nRepository: ${repo}\nBranch: ${branch}\nFile: ${filePath}\nCommit: ${commitMessage}`;
+addMessage('assistant', `<div class="bg-[#161b22] border border-[#238636] p-4 rounded text-[#3fb950] text-sm font-mono whitespace-pre-wrap">${escapeHtml(pushResult)}</div>`);
+showStatus('✓ Code pushed successfully!', 'success');
+}, 1500);
+}
+
+function pullFromGithub() {
+if (!isGithubAuthenticated) {
+showStatus('Please authenticate first', 'error');
+return;
+}
+const repo = document.getElementById('repoName').value.trim();
+const branch = document.getElementById('branchName').value.trim() || 'main';
+const filePath = document.getElementById('filePath').value.trim();
+if (!repo || !filePath) {
+showStatus('Please enter repository and file path', 'error');
+return;
+}
+showStatus('📥 Pulling from GitHub...', 'info');
+setTimeout(() => {
+const mockCode = `# Code pulled from ${repo}\ndef example():\n    print("Code pulled successfully!")\n    return True`;
+addMessage('assistant', `<p class="text-[#e6edf3] text-sm mb-3">📦 File pulled from GitHub:</p><div class="code-block"><div class="flex items-center justify-between bg-[#161b22] px-4 py-2 border-b border-[#30363d]"><span class="text-xs text-[#8b949e] font-mono">${filePath}</span><button onclick="copyCode(this)" class="copy-button bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-2"><i data-lucide="copy" class="w-3 h-3"></i><span>Copy</span></button></div><pre><code class="language-python">${escapeHtml(mockCode)}</code></pre></div>`);
+hljs.highlightAll();
+lucide.createIcons();
+showStatus('✓ Code pulled successfully!', 'success');
+}, 1500);
+}
+
+function logoutGithub() {
+isGithubAuthenticated = false;
+githubToken = '';
+localStorage.removeItem('github_token');
+document.getElementById('authSection').classList.remove('hidden');
+document.getElementById('authenticatedSection').classList.add('hidden');
+document.getElementById('githubToken').value = '';
+showStatus('✓ Logged out', 'info');
+}
+
+function initGithubState() {
+const storedToken = localStorage.getItem('github_token');
+if (storedToken) {
+githubToken = storedToken;
+isGithubAuthenticated = true;
+document.getElementById('authSection').classList.add('hidden');
+document.getElementById('authenticatedSection').classList.remove('hidden');
+}
+}
+
+function setSuggestion(text) {
+document.getElementById('promptInput').value = text;
+document.getElementById('promptInput').focus();
+}
+
+function sendMessage() {
+const input = document.getElementById('promptInput');
+const message = input.value.trim();
+if (!message || isLoading) return;
+addMessage('user', message);
+input.value = '';
+isLoading = true;
+addLoadingMessage();
+setTimeout(() => {
+const language = document.getElementById('languageSelect').value;
+const response = generateMockResponse(message, language);
+removeLoadingMessage();
+addMessage('assistant', response);
+isLoading = false;
+}, 1500);
+}
+
+function addMessage(role, content) {
+const container = document.getElementById('messagesContainer');
+const message = {role, content};
+conversationHistory.push(message);
+const messageDiv = document.createElement('div');
+messageDiv.className = 'chat-message max-w-3xl mx-auto w-full';
+if (role === 'user') {
+messageDiv.innerHTML = `<div class="flex justify-end"><div class="bg-gradient-to-r from-[#58a6ff] to-[#1f6feb] px-4 py-3 rounded-lg max-w-xl text-sm">${escapeHtml(content)}</div></div>`;
+} else {
+messageDiv.innerHTML = `<div class="flex gap-3"><div class="w-8 h-8 bg-[#161b22] border border-[#30363d] rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="code-2" class="w-4 h-4 text-[#58a6ff]"></i></div><div class="flex-1">${content}</div></div>`;
+}
+container.appendChild(messageDiv);
+lucide.createIcons();
+container.querySelectorAll('pre code').forEach(block => {hljs.highlightElement(block);});
+setTimeout(() => {container.scrollTop = container.scrollHeight;}, 100);
+}
+
+function addLoadingMessage() {
+const container = document.getElementById('messagesContainer');
+const loadingDiv = document.createElement('div');
+loadingDiv.id = 'loadingMessage';
+loadingDiv.className = 'chat-message max-w-3xl mx-auto w-full';
+loadingDiv.innerHTML = `<div class="flex gap-3"><div class="w-8 h-8 bg-[#161b22] border border-[#30363d] rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="code-2" class="w-4 h-4 text-[#58a6ff]"></i></div><div class="loading-dots"><span></span><span></span><span></span></div></div>`;
+container.appendChild(loadingDiv);
+container.scrollTop = container.scrollHeight;
+}
+
+function removeLoadingMessage() {
+const loading = document.getElementById('loadingMessage');
+if (loading) loading.remove();
+}
+
+function generateMockResponse(prompt, language) {
+const lowerPrompt = prompt.toLowerCase();
+let code = '', explanation = '';
+if (lowerPrompt.includes('fibonacci')) {
+code = `def fibonacci(n):\n    a, b = 0, 1\n    result = []\n    for _ in range(n):\n        result.append(a)\n        a, b = b, a + b\n    return result\nprint(fibonacci(10))`;
+explanation = 'This function generates a Fibonacci sequence.';
+} else {
+code = `def hello():\n    print("Hello, World!")\nhello()`;
+explanation = 'A simple Python function.';
+}
+return `<div class="space-y-4"><p class="text-[#e6edf3] text-sm">${escapeHtml(explanation)}</p><div class="code-block"><div class="flex items-center justify-between bg-[#161b22] px-4 py-2 border-b border-[#30363d]"><span class="text-xs text-[#8b949e] font-mono">${language}</span><button onclick="copyCode(this)" class="copy-button bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-1 rounded text-xs font-semibold flex items-center gap-2 transition"><i data-lucide="copy" class="w-3 h-3"></i><span>Copy</span></button></div><pre><code class="language-${language}">${escapeHtml(code)}</code></pre></div></div>`;
+}
+
+function copyCode(button) {
+const codeBlock = button.closest('.code-block');
+const code = codeBlock.querySelector('code').textContent;
+navigator.clipboard.writeText(code).then(() => {
+const originalText = button.innerHTML;
+button.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i><span>Copied!</span>';
+lucide.createIcons();
+setTimeout(() => {button.innerHTML = originalText; lucide.createIcons();}, 2000);
+});
+}
+
+function escapeHtml(text) {
+const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+document.getElementById('promptInput').addEventListener('keydown', (e) => {
+if (e.key === 'Enter' && e.shiftKey) {
+e.preventDefault();
+sendMessage();
+}
+});
+
+function analyzeFile() {
+const fileInput = document.getElementById('fileInput');
+const file = fileInput.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function(e) {
+const content = e.target.result;
+addMessage('user', `📁 File uploaded: ${file.name}`);
+fileCount++;
+document.getElementById('fileCount').textContent = fileCount;
+isLoading = true;
+addLoadingMessage();
+setTimeout(() => {
+removeLoadingMessage();
+addMessage('assistant', `<p class="text-[#e6edf3]">✓ File analyzed successfully!</p>`);
+isLoading = false;
+fileInput.value = '';
+}, 2000);
+};
+reader.readAsText(file);
+}
+
+initGithubState();
+lucide.createIcons();
+
+function uploadMainImage() {
+const fileInput = document.getElementById('mainImageInput');
+const file = fileInput.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+reader.onload = function(e) {
+const imgDiv = document.createElement('div');
+imgDiv.className = 'chat-message max-w-3xl mx-auto w-full';
+imgDiv.innerHTML = `<div class="flex gap-3"><div class="w-8 h-8 bg-[#161b22] border border-[#30363d] rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-4 h-4 text-[#00d4ff]"></i></div><div class="flex-1"><div class="bg-[#1a2332] border border-[#00d4ff] rounded-lg p-3 max-w-md"><img src="${e.target.result}" alt="Uploaded image" class="rounded max-w-full h-auto max-h-64"><p class="text-[#8b949e] text-xs mt-2">📤 ${file.name}</p></div></div></div>`;
+document.getElementById('messagesContainer').appendChild(imgDiv);
+fileInput.value = '';
+messageCount++;
+document.getElementById('messageCount').textContent = messageCount;
+lucide.createIcons();
+document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+};
+reader.readAsDataURL(file);
+}
+
+function sendCodeChat() {
+const input = document.getElementById('codeChatInput');
+const message = input.value.trim();
+if (!message) return;
+
+const messagesDiv = document.getElementById('codeChatMessages');
+if (messagesDiv.children[0]?.textContent.includes('Start a code discussion')) {
+messagesDiv.innerHTML = '';
+}
+
+const userMsgDiv = document.createElement('div');
+userMsgDiv.className = 'bg-[#0d1117] p-2 rounded text-[#58a6ff] border-l-2 border-[#58a6ff] text-xs';
+userMsgDiv.textContent = '👤 ' + message;
+messagesDiv.appendChild(userMsgDiv);
+
+input.value = '';
+messageCount++;
+document.getElementById('messageCount').textContent = messageCount;
+
+setTimeout(() => {
+const botMsgDiv = document.createElement('div');
+botMsgDiv.className = 'bg-[#1b3d1b] p-2 rounded text-[#3fb950] border-l-2 border-[#3fb950] text-xs';
+botMsgDiv.textContent = '🤖 Analyzing: ' + message.substring(0, 25) + (message.length > 25 ? '...' : '');
+messagesDiv.appendChild(botMsgDiv);
+messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}, 300);
+}
+
+document.getElementById('codeChatInput')?.addEventListener('keydown', (e) => {
+if (e.key === 'Enter') {
+e.preventDefault();
+sendCodeChat();
+}
+});
+
+function uploadChatImage() {
+const fileInput = document.getElementById('codeChatImageInput');
+const file = fileInput.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+reader.onload = function(e) {
+const messagesDiv = document.getElementById('codeChatMessages');
+if (messagesDiv.children[0]?.textContent.includes('Start a code discussion')) {
+messagesDiv.innerHTML = '';
+}
+
+const userImgDiv = document.createElement('div');
+userImgDiv.className = 'flex justify-end';
+userImgDiv.innerHTML = `<div class="bg-[#1a2332] border border-[#00d4ff] rounded p-2 max-w-xs">
+<img src="${e.target.result}" alt="Uploaded image" class="rounded max-w-full h-auto max-h-24">
+<p class="text-[#58a6ff] text-xs mt-1">📤 ${file.name}</p>
+</div>`;
+messagesDiv.appendChild(userImgDiv);
+
+fileInput.value = '';
+messageCount++;
+document.getElementById('messageCount').textContent = messageCount;
+
+setTimeout(() => {
+const botMsgDiv = document.createElement('div');
+botMsgDiv.className = 'bg-[#1b3d1b] p-2 rounded text-[#3fb950] border-l-2 border-[#3fb950] text-xs';
+botMsgDiv.textContent = '🤖 Image analyzed: ' + file.name.substring(0, 20) + '...';
+messagesDiv.appendChild(botMsgDiv);
+messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}, 500);
+};
+reader.readAsDataURL(file);
+}
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dba3a2cf3e03bec',t:'MTc3MzM5NjQwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
