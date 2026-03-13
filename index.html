@@ -2,80 +2,42 @@
 <html>
 <head>
 
-<meta charset="UTF-8">
 <title>Codez AI</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-<style>
-
-body{
-background:#0d1117;
-color:white;
-font-family:monospace;
-}
-
-textarea{
-resize:none;
-}
-
-</style>
-
 </head>
 
-<body>
+<body class="bg-black text-white">
 
 <div class="max-w-4xl mx-auto p-6">
 
-<h1 class="text-3xl font-bold text-blue-400 mb-6">
-Codez AI
+<h1 class="text-3xl font-bold text-blue-400">
+Codez AI Assistant
 </h1>
 
-<textarea id="codeInput"
-class="w-full h-40 bg-[#161b22] border border-gray-700 p-4 rounded"
-placeholder="Paste your code here..."></textarea>
+<textarea
+id="prompt"
+class="w-full h-40 bg-gray-900 p-4 rounded mt-4"
+placeholder="Paste code or ask AI">
+</textarea>
 
-<div class="flex gap-3 mt-4">
+<button
+onclick="askAI()"
+class="mt-4 bg-blue-600 px-4 py-2 rounded">
 
-<button onclick="runAI('explain')"
-class="bg-blue-600 px-4 py-2 rounded">
-Explain
+Ask AI
+
 </button>
 
-<button onclick="runAI('debug')"
-class="bg-red-600 px-4 py-2 rounded">
-Debug
-</button>
-
-<button onclick="runAI('optimize')"
-class="bg-green-600 px-4 py-2 rounded">
-Optimize
-</button>
-
-</div>
-
-<div class="mt-6">
-
-<h2 class="text-xl mb-2 text-gray-300">
-AI Response
-</h2>
-
-<pre class="bg-[#161b22] p-4 rounded border border-gray-700">
-
-<code id="output"></code>
-
+<pre
+id="result"
+class="bg-gray-900 p-4 mt-6 rounded">
 </pre>
 
 </div>
 
-</div>
-
-<script src="script.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
