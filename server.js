@@ -30,7 +30,8 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: "5mb" }));
-app.use(express.static(process.cwd()));\r\napp.get("/", (req, res) => res.send("OK"));
+app.use(express.static(process.cwd()));
+app.get("/", (req, res) => res.send("OK"));
 
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || "";
 if (mongoUri) {
@@ -540,6 +541,7 @@ app.post("/api/repos/:repoId/push", requireAuth, async (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Codez AI API running on ${PORT}`);
 });
+
 
 
 
