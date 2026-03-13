@@ -4,93 +4,7 @@
 
 <title>Codez AI IDE</title>
 
-<style>
-
-body{
-margin:0;
-background:#0b0f19;
-color:white;
-font-family:Arial;
-}
-
-.topbar{
-height:45px;
-background:#111827;
-display:flex;
-align-items:center;
-padding:0 15px;
-gap:8px;
-border-bottom:1px solid #1e293b;
-}
-
-.topbar button{
-background:#2563eb;
-border:none;
-padding:6px 12px;
-border-radius:5px;
-color:white;
-cursor:pointer;
-}
-
-.layout{
-display:flex;
-height:calc(100vh - 45px);
-}
-
-.sidebar{
-width:220px;
-background:#020617;
-border-right:1px solid #1e293b;
-padding:10px;
-overflow:auto;
-}
-
-.editor{
-flex:1;
-}
-
-.ai{
-width:340px;
-background:#020617;
-border-left:1px solid #1e293b;
-padding:15px;
-}
-
-.chat{
-height:55%;
-overflow:auto;
-background:#0f172a;
-padding:10px;
-border-radius:6px;
-font-family:monospace;
-}
-
-.diff{
-height:120px;
-background:#020617;
-border:1px solid #1e293b;
-margin-top:10px;
-padding:10px;
-overflow:auto;
-font-family:monospace;
-}
-
-.terminal{
-height:120px;
-background:#020617;
-border-top:1px solid #1e293b;
-padding:10px;
-font-family:monospace;
-overflow:auto;
-}
-
-.file{
-cursor:pointer;
-color:#94a3b8;
-margin-top:5px;
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 
 <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
 
@@ -100,23 +14,19 @@ margin-top:5px;
 
 <div class="topbar">
 
-<button onclick="ai('explain')">Explain</button>
-<button onclick="ai('fix')">Fix Bug</button>
-<button onclick="ai('optimize')">Optimize</button>
-<button onclick="ai('generate')">Generate</button>
+<button onclick="runAI('explain')">Explain</button>
+<button onclick="runAI('fix')">Fix Bug</button>
+<button onclick="runAI('optimize')">Optimize</button>
 <button onclick="runCode()">Run</button>
 
 <input type="file" webkitdirectory onchange="loadProject(event)">
-<button onclick="loadGithubRepo()">Load Repo</button>
 
 </div>
 
 <div class="layout">
 
 <div class="sidebar" id="files">
-
 <b>Project Files</b>
-
 </div>
 
 <div id="editor" class="editor"></div>
@@ -127,167 +37,15 @@ margin-top:5px;
 
 <div id="result" class="chat"></div>
 
-<h4>Code Diff</h4>
-
-<div id="diff" class="diff"></div>
-
 </div>
 
 </div>
 
-<div class="terminal" id="terminal">
-
+<div id="terminal" class="terminal">
 Terminal ready...
-
 </div>
 
-<script>
-
-require.config({paths:{vs:"https://unpkg.com/monaco-editor@0.45.0/min/vs"}});
-
-require(["vs/editor/editor.main"],function(){
-
-window.editor = monaco.editor.create(
-document.getElementById("editor"),
-{
-value:"",
-language:"javascript",
-theme:"vs-dark"
-}
-);
-
-});
-
-function loadProject(event){
-
-const files=event.target.files;
-
-const sidebar=document.getElementById("files");
-
-sidebar.innerHTML="<b>Project Files</b>";
-
-for(let file of files){
-
-const div=document.createElement("div");
-
-div.textContent=file.webkitRelativePath;
-
-div.className="file";
-
-div.onclick=()=>openFile(file);
-
-sidebar.appendChild(div);
-
-}
-
-}
-
-function openFile(file){
-
-const reader=new FileReader();
-
-reader.onload=function(){
-
-editor.setValue(reader.result);
-
-};
-
-reader.readAsText(file);
-
-}
-
-async function ai(mode){
-
-const code=editor.getValue();
-
-const prompt=mode+" this code and improve it:\n\n"+code;
-
-const response=await fetch(
-"https://codez-ai-production.up.railway.app/ai",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({prompt})
-}
-);
-
-const data=await response.json();
-
-document.getElementById("result").textContent=data.result;
-
-showDiff(code,data.result);
-
-}
-
-function showDiff(oldCode,newCode){
-
-document.getElementById("diff").textContent=
-"--- Original ---\n"+
-oldCode+
-"\n\n--- AI Suggestion ---\n"+
-newCode;
-
-}
-
-function runCode(){
-
-const code=editor.getValue();
-
-const terminal=document.getElementById("terminal");
-
-try{
-
-const result=eval(code);
-
-terminal.textContent+="\n"+result;
-
-}catch(err){
-
-terminal.textContent+="\nError: "+err;
-
-}
-
-}
-
-async function loadGithubRepo(){
-
-const repo=prompt("Enter GitHub repo (owner/repo)");
-
-const res=await fetch(
-`https://api.github.com/repos/${repo}/contents`
-);
-
-const files=await res.json();
-
-const sidebar=document.getElementById("files");
-
-sidebar.innerHTML="<b>Repo Files</b>";
-
-files.forEach(file=>{
-
-const div=document.createElement("div");
-
-div.textContent=file.name;
-
-div.className="file";
-
-div.onclick=async()=>{
-
-const raw=await fetch(file.download_url);
-
-editor.setValue(await raw.text());
-
-};
-
-sidebar.appendChild(div);
-
-});
-
-}
-
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
