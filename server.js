@@ -56,11 +56,10 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 async function callGroqAI(prompt, attachments = []) {
   let fullPrompt = prompt;
 
-
   if (attachments && attachments.length > 0) {
     fullPrompt += "\n\n=== Attached Files/Context ===\n";
     attachments.forEach(att => {
-      fullPrompt += `\n--- File: ${att.name} ---\n${att.content.substring(0, 8000)}\n`; // limit to avoid token overflow
+      fullPrompt += `\n--- File: ${att.name} ---\n${att.content.substring(0, 8000)}\n`;
     });
     fullPrompt += "\nUse the above files/context to answer accurately.";
   }
@@ -70,14 +69,14 @@ async function callGroqAI(prompt, attachments = []) {
       messages: [
         {
           role: "system",
-          content: "You are Codez AI - an expert coding assistant like OpenAI Codex. Respond in Hindi-English mix as user prefers. Help with code generation, explanation, debugging, optimization. Be precise, give clean code with comments."
+          content: "You are Codez AI — an expert coding assistant exactly like OpenAI Codex. Respond in Hindi-English mix (jaise user bolta hai). Code generation, explanation, debugging, optimization mein mast kaam kar. Clean code with comments de, step-by-step soch ke bata. Kabhi bhi galat code mat de."
         },
         { role: "user", content: fullPrompt }
       ],
-      model: "deepseek-ai/deepseek-coder-v2-lite-preview",  
-      temperature: 0.6,
+      model: "deepseek-r1-distill-llama-70b",   // ← Yeh line change kardi
+      temperature: 0.3,      // Codex jaisa deterministic
       max_tokens: 4096,
-      top_p: 0.9
+      top_p: 0.95
     });
 
     return {
