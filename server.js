@@ -35,7 +35,7 @@ app.use(cors({
 
 app.use(express.json({ limit: "5mb" }));
 app.set("trust proxy", 1);
-app.use(express.static(path.join(process.cwd(), "public"))); // agar public folder bana rahe ho to
+app.use(express.static(path.join(process.cwd(), "public"))); 
 
 app.get("/", (req, res) => res.send("Codez AI backend running"));
 app.get("/health", (req, res) => res.json({ ok: true, time: new Date() }));
