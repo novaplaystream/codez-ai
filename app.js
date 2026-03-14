@@ -275,8 +275,6 @@ async function loadHistory(){
     el.textContent = "Failed to load";
   }
 }
-}
-
 async function loadRepos(){
   const el = document.getElementById("repos");
   if(!el) return;
@@ -563,6 +561,8 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+window.toggleEditorPanel = toggleEditorPanel;
+window.sendChatMessage = sendChatMessage;
 
 
 
@@ -623,6 +623,8 @@ function bindChatInput(){
     }
   });
 }
+
+
 
 
 
