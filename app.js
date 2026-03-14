@@ -72,11 +72,13 @@ async function bootstrapAuth(){
 }
 
 function loginGithub(){
-  window.location.href = apiUrl("/auth/github");
+  const returnTo = encodeURIComponent(window.location.origin + window.location.pathname);
+  window.location.href = apiUrl(`/auth/github?returnTo=${returnTo}`);
 }
 
 function loginGoogle(){
-  window.location.href = apiUrl("/auth/google");
+  const returnTo = encodeURIComponent(window.location.origin + window.location.pathname);
+  window.location.href = apiUrl(`/auth/google?returnTo=${returnTo}`);
 }
 
 async function logoutGithub(){
@@ -174,10 +176,21 @@ async function runAI(mode){
 
   let attachText = "";
   if(attachments.length>0){
-    attachText = "\n\nAttached files:\n" + attachments.map(a => `--- ${a.name} ---\n${a.content}`).join("\n\n");
+    attachText = "
+
+Attached files:
+" + attachments.map(a => `--- ${a.name} ---
+${a.content}`).join("
+
+");
   }
 
-  const prompt=mode+" this code:\n\n"+code+(userNote?"\n\nUser note:\n"+userNote:"")+attachText;
+  const prompt=mode+" this code:
+
+"+code+(userNote?"
+
+User note:
+"+userNote:"")+attachText;
 
   addLog("Sent request: "+mode);
   document.getElementById("result").textContent="Thinking...";
@@ -244,10 +257,12 @@ function runCode(){
 
   try{
     const result=eval(code);
-    terminal.textContent+="\n"+result;
+    terminal.textContent+="
+"+result;
     addLog("Code ran successfully");
   }catch(e){
-    terminal.textContent+="\nError: "+e;
+    terminal.textContent+="
+Error: "+e;
     addLog("Runtime error");
   }
 }
@@ -364,3 +379,5 @@ async function pushRepo(){
   }
   addLog("Push complete");
 }
+
+

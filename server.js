@@ -90,6 +90,11 @@ const Chat = mongoose.model("Chat", chatSchema);
 const Log = mongoose.model("Log", logSchema);
 const Project = mongoose.model("Project", projectSchema);
 
+const isHttpsFrontend = /^https:\/\//i.test(FRONTEND_URL);
+const cookieSameSite = process.env.COOKIE_SAMESITE || (isHttpsFrontend ? "none" : "lax");
+const cookieSecure = process.env.COOKIE_SECURE
+  ? process.env.COOKIE_SECURE === "true"
+  : (cookieSameSite === "none" ? true : isHttpsFrontend);
 app.use(session({
   secret: process.env.SESSION_SECRET || "dev-secret",
   resave: false,
@@ -99,8 +104,8 @@ app.use(session({
     : undefined,
   cookie: {
     httpOnly: true,
-    sameSite: process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === "production" ? "none" : "lax"),
-    secure: process.env.NODE_ENV === "production"
+    sameSite: cookieSameSite,
+    secure: cookieSecure
   }
 }));
 
@@ -118,7 +123,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: process.env.GITHUB_CALLBACK_URL || `http://localhost:${PORT}/auth/github/callback`
+    callbackURL: process.env.GITHUB_CALLBACK_URL || (BACKEND_URL ? `${BACKEND_URL}/auth/github/callback` : `http://localhost:${PORT}/auth/github/callback`)
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       const existing = await User.findOne({ provider: "github", providerId: profile.id });
@@ -150,7 +155,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || `http://localhost:${PORT}/auth/google/callback`
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || (BACKEND_URL ? `${BACKEND_URL}/auth/google/callback` : `http://localhost:${PORT}/auth/google/callback`)
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       const existing = await User.findOne({ provider: "google", providerId: profile.id });
@@ -189,7 +194,37 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: "Not authenticated" });
 }
 
+function getBackendBase(req) {
+  if (BACKEND_URL) return BACKEND_URL;
+  const proto = req.get("x-forwarded-proto") || req.protocol;
+  const host = req.get("x-forwarded-host") || req.get("host");
+  return `${proto}://${host}`;
+}
+
+function appendAuthQuery(url, status) {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("auth", status);
+    return u.toString();
+  } catch {
+    const sep = url.includes("?") ? "&" : "?";
+    return url + sep + `auth=${status}`;
+  }
+}
+
+function consumeReturnTo(req) {
+  const target = req.session?.returnTo;
+  if (req.session) req.session.returnTo = null;
+  if (typeof target !== "string") return "";
+  if (/^https?:\/\//i.test(target)) return target;
+  if (target.startsWith("/")) return target;
+  return "";
+}
+
 function redirectToClient(res, path) {
+  if (/^https?:\/\//i.test(path)) {
+    return res.redirect(path);
+  }
   if (FRONTEND_URL) {
     return res.redirect(FRONTEND_URL + path);
   }
@@ -312,21 +347,31 @@ async function callOpenRouter(prompt) {
   return { ok: false, error: "All keys failed", details: errors };
 }
 
-app.get("/auth/github", passport.authenticate("github", { scope: ["repo", "read:user", "user:email"] }));
+app.get("/auth/github", (req, res, next) => {
+  if (req.query.returnTo) req.session.returnTo = String(req.query.returnTo);
+  const callbackURL = process.env.GITHUB_CALLBACK_URL || `${getBackendBase(req)}/auth/github/callback`;
+  passport.authenticate("github", { scope: ["repo", "read:user", "user:email"], callbackURL })(req, res, next);
+});
 
 app.get("/auth/github/callback", (req, res, next) => {
   passport.authenticate("github", (err, user) => {
-    if (err || !user) return redirectToClient(res, "/?auth=fail");
-    req.logIn(user, () => redirectToClient(res, "/?auth=ok"));
+    const target = consumeReturnTo(req) || (FRONTEND_URL || "/");
+    if (err || !user) return redirectToClient(res, appendAuthQuery(target, "fail"));
+    req.logIn(user, () => redirectToClient(res, appendAuthQuery(target, "ok")));
   })(req, res, next);
 });
 
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/auth/google", (req, res, next) => {
+  if (req.query.returnTo) req.session.returnTo = String(req.query.returnTo);
+  const callbackURL = process.env.GOOGLE_CALLBACK_URL || `${getBackendBase(req)}/auth/google/callback`;
+  passport.authenticate("google", { scope: ["profile", "email"], callbackURL })(req, res, next);
+});
 
 app.get("/auth/google/callback", (req, res, next) => {
   passport.authenticate("google", (err, user) => {
-    if (err || !user) return redirectToClient(res, "/?auth=fail");
-    req.logIn(user, () => redirectToClient(res, "/?auth=ok"));
+    const target = consumeReturnTo(req) || (FRONTEND_URL || "/");
+    if (err || !user) return redirectToClient(res, appendAuthQuery(target, "fail"));
+    req.logIn(user, () => redirectToClient(res, appendAuthQuery(target, "ok")));
   })(req, res, next);
 });
 
@@ -544,3 +589,12 @@ app.post("/api/repos/:repoId/push", requireAuth, async (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Codez AI API running on ${PORT}`);
 });
+
+
+
+
+
+
+
+
+
