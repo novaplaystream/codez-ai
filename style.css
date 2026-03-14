@@ -418,7 +418,8 @@ body{
   overflow:hidden;
 }
 .codex-ui .app{
-  grid-template-columns:1fr minmax(220px, 260px);
+  display:flex;
+  flex-direction:row-reverse;
   height:100vh;
   width:100vw;
 }
@@ -427,7 +428,7 @@ body{
   background:#121313;
   border-left:1px solid #1e1f20;
   border-right:0;
-  grid-column:2;
+  flex:0 0 260px;
   height:100vh;
   overflow:auto;
 }
@@ -452,7 +453,8 @@ body{
 .codex-ui .main{
   height:100vh;
   overflow:hidden;
-  grid-column:1;
+  flex:1 1 auto;
+  min-width:0;
   display:grid;
   grid-template-rows:auto auto auto 1fr;
   min-height:0;
@@ -563,7 +565,8 @@ body{
 }
 @media (max-width:900px){
   .codex-ui .app{
-  grid-template-columns:1fr minmax(220px, 260px);
+  display:flex;
+  flex-direction:row-reverse;
   height:100vh;
   width:100vw;
 }
@@ -572,7 +575,7 @@ body{
   background:#121313;
   border-left:1px solid #1e1f20;
   border-right:0;
-  grid-column:2;
+  flex:0 0 260px;
   height:100vh;
   overflow:auto;
 }
@@ -616,4 +619,11 @@ body{
   font-size:10px;
 }
 
+
+
+@media (max-width:900px){
+  .codex-ui .nav{
+    display:none;
+  }
+}
 
