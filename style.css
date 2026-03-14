@@ -680,3 +680,40 @@ body{
   margin:0 16px 16px 16px;
 }
 
+
+/* Icon-only attachment buttons */
+.icon-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  color:#e6e6e6;
+}
+.icon-btn:hover{
+  border-color:rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.08);
+}
+.icon-btn input{
+  display:none;
+}
+.icon-btn .icon-label{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  border:0;
+}
+.codex-ui .ai-tag.compact{
+  font-size:10px;
+  padding:3px 6px;
+}
+
