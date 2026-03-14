@@ -749,3 +749,21 @@ body{
   padding:2px 6px;
 }
 
+
+/* Ensure attach row icons are visible */
+.attach-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.attach-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.icon-btn{
+  width:30px;
+  height:30px;
+}
+
