@@ -12,7 +12,7 @@ import path from "path";
 import fs from "fs";
 import { simpleGit } from "simple-git";
 import * as cheerio from "cheerio";
-import { Groq } from "groq-sdk";   
+import { Groq } from "groq-sdk";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +21,12 @@ const REPOS_DIR = path.join(process.cwd(), "repos");
 if (!fs.existsSync(REPOS_DIR)) {
   fs.mkdirSync(REPOS_DIR, { recursive: true });
 }
+
+// ← Logging for debug
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Body:`, req.body);
+  next();
+});
 
 app.use(cors({
   origin: true,
@@ -36,8 +42,6 @@ app.use(express.static(process.cwd()));
 app.get("/", (req, res) => res.send("OK"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-
-
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || "";
 if (mongoUri) {
   mongoose.connect(mongoUri)
@@ -45,13 +49,16 @@ if (mongoUri) {
     .catch(err => console.error("MongoDB connection failed", err));
 }
 
-
-
-
-
+// ← Chat model define kar diya (yeh missing tha!)
+const chatSchema = new mongoose.Schema({
+  userId: { type: String, required: true },
+  prompt: { type: String, required: true },
+  response: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+const Chat = mongoose.model('Chat', chatSchema);
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 
 async function callGroqAI(prompt, attachments = []) {
   let fullPrompt = prompt;
@@ -69,14 +76,14 @@ async function callGroqAI(prompt, attachments = []) {
       messages: [
         {
           role: "system",
-          content: "You are Codez AI — an expert coding assistant exactly like OpenAI Codex. Respond in Hindi-English mix (jaise user bolta hai). Code generation, explanation, debugging, optimization mein mast kaam kar. Clean code with comments de, step-by-step soch ke bata. Kabhi bhi galat code mat de."
+          content: "You are Codez AI — expert coding assistant jaise OpenAI Codex. Hindi-English mix mein jawab dena (jaise user baat karta hai). Code generate karo, explain karo, debug karo, optimize karo. Clean code with comments do, step-by-step socho aur batao. Kabhi galat ya outdated code mat dena."
         },
         { role: "user", content: fullPrompt }
       ],
-     model: "llama-3.3-70b-versatile",   // ← Yeh line change kardi
-      temperature: 0.3,      // Codex jaisa deterministic
+      model: "llama-3.3-70b-versatile",  // Yeh abhi active hai (March 2026)
+      temperature: 0.35,
       max_tokens: 4096,
-      top_p: 0.95
+      top_p: 0.92
     });
 
     return {
@@ -89,9 +96,8 @@ async function callGroqAI(prompt, attachments = []) {
   }
 }
 
-
 app.post("/ai", async (req, res) => {
-  const { prompt, attachments } = req.body;  
+  const { prompt, attachments } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: "No prompt provided" });
@@ -102,7 +108,6 @@ app.post("/ai", async (req, res) => {
   if (!aiResponse.ok) {
     return res.json({ result: `AI error: ${aiResponse.error}` });
   }
-
 
   if (req.user) {
     await Chat.create({
@@ -115,7 +120,15 @@ app.post("/ai", async (req, res) => {
   res.json({ result: aiResponse.result });
 });
 
+// ← 404 aur error handlers
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
 
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.stack);
+  res.status(500).json({ error: "Internal server error", message: err.message });
+});
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Codez AI running on port ${PORT}`);
