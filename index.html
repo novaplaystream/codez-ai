@@ -71,6 +71,7 @@
     </section>
 <section class="workbench">
       <div id="editorPlaceholder" class="editor-placeholder">Editor hidden. Click Editor to open.</div>
+<<<<<<< HEAD
       <div class="ai">
         <div class="ai-header"></div>
           <div class="ai-tag compact" id="modelTag">deepseek</div>
@@ -92,8 +93,35 @@
           </label>
           <div class="attach-info" id="attachInfo">No attachments</div>
         </div>\r\n          <div class="attach-right">            <div class="ai-tag compact" id="modelTag">deepseek</div>\r\n          </div>\r\n        </div>\r\n        <div id="result" class="chat"></div>
+=======
+      <div class="ai">
+        <div class="ai-header">
+          <div class="ai-title">AI Chat</div>
+          <div class="ai-tag compact" id="modelTag">deepseek</div>
+        </div>
+        <div class="attach-row">
+          <div class="attach-left">
+            <label class="icon-btn" title="Add File">
+              <span class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h10l4 4v12H4z"/><path d="M14 4v4h4"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>
+              </span>
+              <span class="icon-label">Add File</span>
+              <input type="file" id="aiFile" multiple>
+            </label>
+            <label class="icon-btn" title="Add Folder">
+              <span class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+              </span>
+              <span class="icon-label">Add Folder</span>
+              <input type="file" id="aiFolder" webkitdirectory multiple>
+            </label>
+            <div class="attach-info" id="attachInfo">No attachments</div>
+          </div>
+        </div>
+        <div id="result" class="chat"></div>
+>>>>>>> 2a87943 (update)
       </div>
-    </section>
+      </section>
 
     <section class="analysis">
       <div class="analysis-title">URL Analysis</div>
@@ -139,6 +167,9 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+
 
 
 
