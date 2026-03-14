@@ -63,7 +63,7 @@ body{
 
 .icon-btn:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);}
 
-.icon-btn input{display:none;}
+.icon-btn input{display:none;}\n\n.icon-btn img{\n  width:16px;\n  height:16px;\n  display:block;\n  filter:brightness(0) invert(1);\n  opacity:0.9;\n}
 
 .unified-bar{display:flex;gap:8px;padding:8px 14px;align-items:center;flex-wrap:wrap;}
 
@@ -118,4 +118,5 @@ body{
   height:16px;
   stroke:currentColor;
 }
+
 

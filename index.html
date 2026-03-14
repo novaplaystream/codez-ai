@@ -42,24 +42,24 @@
           <div class="status" id="authStatus">Guest</div>
         </div>
         <div class="topbar-actions icon-bar">
-          <button class="icon-btn" title="Explain" onclick="runAI('explain')"><i data-lucide="help-circle"></i></button>
-          <button class="icon-btn" title="Fix Bug" onclick="runAI('fix')"><i data-lucide="bug"></i></button>
-          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')"><i data-lucide="zap"></i></button>
-          <button class="icon-btn" title="Run" onclick="runCode()"><i data-lucide="play"></i></button>
-          <button class="icon-btn" title="Terminal" onclick="toggleTerminal()"><i data-lucide="terminal"></i></button>
-          <button class="icon-btn" title="Settings" onclick="openSettings()"><i data-lucide="settings"></i></button>
-          <button class="icon-btn" title="GitHub Login" id="loginBtn" onclick="loginGithub()"><i data-lucide="log-in"></i></button>
-          <button class="icon-btn" title="Google Login" id="googleBtn" onclick="loginGoogle()"><i data-lucide="mail"></i></button>
+          <button class="icon-btn" title="Explain" onclick="runAI('explain')"><img alt="" src="https://tabler-icons.io/i/help.svg"></button>
+          <button class="icon-btn" title="Fix Bug" onclick="runAI('fix')"><img alt="" src="https://tabler-icons.io/i/bug.svg"></button>
+          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')"><img alt="" src="https://tabler-icons.io/i/bolt.svg"></button>
+          <button class="icon-btn" title="Run" onclick="runCode()"><img alt="" src="https://tabler-icons.io/i/player-play.svg"></button>
+          <button class="icon-btn" title="Terminal" onclick="toggleTerminal()"><img alt="" src="https://tabler-icons.io/i/terminal-2.svg"></button>
+          <button class="icon-btn" title="Settings" onclick="openSettings()"><img alt="" src="https://tabler-icons.io/i/settings.svg"></button>
+          <button class="icon-btn" title="GitHub Login" id="loginBtn" onclick="loginGithub()"><img alt="" src="https://tabler-icons.io/i/brand-github.svg"></button>
+          <button class="icon-btn" title="Google Login" id="googleBtn" onclick="loginGoogle()"><img alt="" src="https://tabler-icons.io/i/brand-google.svg"></button>
         </div>
       </header>
 
       <section class="unified-bar">
         <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL">
-        <button class="icon-btn" title="Clone Repo" onclick="cloneRepoUnified()"><i data-lucide="download"></i></button>
-        <button class="icon-btn" title="Analyze URL" onclick="analyzeUrlUnified()"><i data-lucide="search"></i></button>
+        <button class="icon-btn" title="Clone Repo" onclick="cloneRepoUnified()"><img alt="" src="https://tabler-icons.io/i/git-clone.svg"></button>
+        <button class="icon-btn" title="Analyze URL" onclick="analyzeUrlUnified()"><img alt="" src="https://tabler-icons.io/i/search.svg"></button>
         <input id="commitMsg" type="text" placeholder="Commit message">
-        <button class="icon-btn" title="Commit + Push" onclick="pushRepo()"><i data-lucide="upload"></i></button>
-        <button class="icon-btn" title="Save File" onclick="saveFile()"><i data-lucide="save"></i></button>
+        <button class="icon-btn" title="Commit + Push" onclick="pushRepo()"><img alt="" src="https://tabler-icons.io/i/cloud-upload.svg"></button>
+        <button class="icon-btn" title="Save File" onclick="saveFile()"><img alt="" src="https://tabler-icons.io/i/device-floppy.svg"></button>
         <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
       </section>
 
@@ -72,11 +72,11 @@
           </div>
           <div class="attach-row">
             <label class="icon-btn" title="Add File">
-              <i data-lucide="file-plus"></i>
+              <img alt="" src="https://tabler-icons.io/i/file-plus.svg">
               <input type="file" id="aiFile" multiple>
             </label>
             <label class="icon-btn" title="Add Folder">
-              <i data-lucide="folder-plus"></i>
+              <img alt="" src="https://tabler-icons.io/i/folder-plus.svg">
               <input type="file" id="aiFolder" webkitdirectory multiple>
             </label>
             <div class="attach-info" id="attachInfo">No attachments</div>
@@ -95,18 +95,11 @@
   <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
     <div class="terminal-head">
       <div class="terminal-title">Terminal</div>
-      <button class="icon-btn" title="Close" onclick="toggleTerminal()"><i data-lucide="x"></i></button>
+      <button class="icon-btn" title="Close" onclick="toggleTerminal()"><img alt="" src="https://tabler-icons.io/i/x.svg"></button>
     </div>
     <div id="terminal" class="terminal">Terminal ready...</div>
   </div>
 
   <script src="app.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    if (window.lucide && lucide.createIcons) {
-      lucide.createIcons({ attrs: { 'stroke-width': 1.6 } });
-    }
-  </script>
 </body>
 </html>
-

@@ -81,13 +81,9 @@ function addLog(text){
   }).catch(()=>{});
 }
 
-function setIconButton(btn, icon, title){
+function setIconButton(btn, title){
   if(!btn) return;
   btn.setAttribute("title", title);
-  btn.innerHTML = `<i data-lucide="${icon}"></i>`;
-  if(window.lucide && lucide.createIcons){
-    lucide.createIcons({ attrs: { "stroke-width": 1.6 } });
-  }
 }
 
 async function bootstrapAuth(){
@@ -99,10 +95,10 @@ async function bootstrapAuth(){
     const gbtn = document.getElementById("googleBtn");
     if(user && user.username){
       status.textContent = "@"+user.username;
-      setIconButton(btn, "log-out", "Logout");
+      setIconButton(btn, "Logout");
       btn.onclick = logoutGithub;
       if(gbtn){
-        setIconButton(gbtn, "mail", "Google Login");
+        setIconButton(gbtn, "Google Login");
         gbtn.style.display = "none";
       }
       addLog("Logged in as "+user.username);
@@ -110,10 +106,10 @@ async function bootstrapAuth(){
       await loadRepos();
     }else{
       status.textContent = "Guest";
-      setIconButton(btn, "log-in", "GitHub Login");
+      setIconButton(btn, "GitHub Login");
       btn.onclick = loginGithub;
       if(gbtn){
-        setIconButton(gbtn, "mail", "Google Login");
+        setIconButton(gbtn, "Google Login");
         gbtn.style.display = "inline-flex";
       }
     }
@@ -482,4 +478,7 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+
+
+
 
