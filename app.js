@@ -64,6 +64,7 @@ if(window.require && window.require.config){
     initFallbackEditor();
   }
 }
+
 function addLog(text){
   const log=document.getElementById("log");
   if(!log) return;
@@ -80,6 +81,15 @@ function addLog(text){
   }).catch(()=>{});
 }
 
+function setIconButton(btn, icon, title){
+  if(!btn) return;
+  btn.setAttribute("title", title);
+  btn.innerHTML = `<i data-lucide="${icon}"></i>`;
+  if(window.lucide && lucide.createIcons){
+    lucide.createIcons({ attrs: { "stroke-width": 1.6 } });
+  }
+}
+
 async function bootstrapAuth(){
   try{
     const res = await fetch(apiUrl("/api/me"), { credentials:"include" });
@@ -89,17 +99,23 @@ async function bootstrapAuth(){
     const gbtn = document.getElementById("googleBtn");
     if(user && user.username){
       status.textContent = "@"+user.username;
-      btn.textContent = "Logout";
+      setIconButton(btn, "log-out", "Logout");
       btn.onclick = logoutGithub;
-      gbtn.style.display = "none";
+      if(gbtn){
+        setIconButton(gbtn, "mail", "Google Login");
+        gbtn.style.display = "none";
+      }
       addLog("Logged in as "+user.username);
       await loadHistory();
       await loadRepos();
     }else{
       status.textContent = "Guest";
-      btn.textContent = "GitHub Login";
+      setIconButton(btn, "log-in", "GitHub Login");
       btn.onclick = loginGithub;
-      gbtn.style.display = "inline-flex";
+      if(gbtn){
+        setIconButton(gbtn, "mail", "Google Login");
+        gbtn.style.display = "inline-flex";
+      }
     }
   }catch(e){
     addLog("Auth check failed");
@@ -242,8 +258,9 @@ async function runAI(mode){
   }
 }
 
-async function analyzeUrl(){
-  const url = document.getElementById("analyzeUrl").value.trim();
+async function analyzeUrl(urlOverride){
+  const inputEl = document.getElementById("analyzeUrl") || document.getElementById("actionUrl");
+  const url = (urlOverride || (inputEl ? inputEl.value : "")).trim();
   const status = document.getElementById("analyzeStatus");
   const out = document.getElementById("analysisResult");
   if(!url){
@@ -402,13 +419,53 @@ async function pushRepo(){
   addLog("Push complete");
 }
 
+function toggleTerminal(){
+  const drawer = document.getElementById("terminalDrawer");
+  if(!drawer) return;
+  const isOpen = drawer.classList.contains("open");
+  drawer.classList.toggle("open", !isOpen);
+  drawer.setAttribute("aria-hidden", isOpen ? "true" : "false");
+}
 
+function openSettings(){
+  addLog("Settings clicked");
+}
 
+async function cloneRepoUnified(){
+  const input = document.getElementById("actionUrl");
+  const repoUrl = (input && input.value || "").trim();
+  if(!repoUrl){
+    addLog("Repo URL missing");
+    return;
+  }
 
+  addLog("Cloning repo...");
+  const res = await fetch(apiUrl("/api/repos/clone"), {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    credentials:"include",
+    body:JSON.stringify({repoUrl})
+  });
+  const data = await res.json();
+  if(data.error){
+    addLog("Clone failed: "+data.error);
+    return;
+  }
+  currentRepoId = data.repoId;
+  await loadRepoFiles();
+  addLog("Repo ready: "+(data.repoId || ""));
+  await loadRepos();
+}
 
-
-
-
+async function analyzeUrlUnified(){
+  const input = document.getElementById("actionUrl");
+  const url = (input && input.value || "").trim();
+  if(!url){
+    addLog("URL missing");
+    return;
+  }
+  await analyzeUrl(url);
+}
 
 // Expose handlers for inline HTML onclick
 window.runAI = runAI;
@@ -422,75 +479,7 @@ window.pushRepo = pushRepo;
 window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
 window.toggleTerminal = toggleTerminal;
-window.openSettings = openSettings;`r`nwindow.cloneRepoUnified = cloneRepoUnified;`r`nwindow.analyzeUrlUnified = analyzeUrlUnified;
-window.toggleEditor = toggleEditor;
-
-
-
-
-
-
-
-
-
-function toggleTerminal(){
-  const drawer = document.getElementById("terminalDrawer");
-  if(!drawer) return;
-  const isOpen = drawer.classList.contains("open");
-  drawer.classList.toggle("open", !isOpen);
-  drawer.setAttribute("aria-hidden", isOpen ? "true" : "false");
-}
-
-window.addEventListener("keydown", (e) => {
-  if(e.key === "Escape"){
-    const drawer = document.getElementById("terminalDrawer");
-    if(drawer && drawer.classList.contains("open")){
-      drawer.classList.remove("open");
-      drawer.setAttribute("aria-hidden", "true");
-    }
-  }
-});
-
-
-
-function openSettings(){
-  addLog("Settings clicked");
-}
-
-function toggleEditor(){
-  const drawer = document.getElementById("editorDrawer");
-  const placeholder = document.getElementById("editorPlaceholder");
-  if(!drawer) return;
-  const isOpen = drawer.classList.contains("open");
-  drawer.classList.toggle("open", !isOpen);
-  drawer.setAttribute("aria-hidden", isOpen ? "true" : "false");
-  if(placeholder){
-    placeholder.style.display = isOpen ? "flex" : "none";
-  }
-  // Lazy init if editor not yet created (Monaco or fallback)
-  if(!window.editor && !isOpen){
-    if(window.require && window.require.config){
-      window.require(["vs/editor/editor.main"],function(){
-        initEditorWithMonaco();
-      });
-    }else{
-      initFallbackEditor();
-    }
-  }
-}
-
-function cloneRepoUnified(){
-  const input = document.getElementById('actionUrl');
-  const repoUrl = (input && input.value || '').trim();
-  if(!repoUrl){ addLog('Repo URL missing'); return; }
-  document.getElementById('repoUrl').value = repoUrl;
-  cloneRepo();
-}
-function analyzeUrlUnified(){
-  const input = document.getElementById('actionUrl');
-  const url = (input && input.value || '').trim();
-  if(!url){ addLog('URL missing'); return; }
-  document.getElementById('analyzeUrl').value = url;
-  analyzeUrl();
-}
+window.openSettings = openSettings;
+window.cloneRepoUnified = cloneRepoUnified;
+window.analyzeUrlUnified = analyzeUrlUnified;
 
