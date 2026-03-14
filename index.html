@@ -46,7 +46,7 @@
         <button class="pill" onclick="runAI('explain')">Explain</button>
         <button class="pill" onclick="runAI('fix')">Fix Bug</button>
         <button class="pill" onclick="runAI('optimize')">Optimize</button>
-        <button class="pill ghost" onclick="runCode()">Run</button>
+        <button class="pill ghost" onclick="toggleEditor()">Editor</button>`r`n        <button class="pill ghost" onclick="runCode()">Run</button>
         <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
         <button class="pill ghost" onclick="openSettings()">Settings</button>
         <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
@@ -69,7 +69,7 @@
       <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
     </section>
 <section class="workbench">
-      <div id="editor" class="editor"></div>
+      <div id="editorPlaceholder" class="editor-placeholder">Editor hidden. Click Editor to open.</div>
       <div class="ai">
         <div class="ai-header">
           <h3>AI Chat</h3>
@@ -96,7 +96,7 @@
     </section>
 
 </main>
-</div>
+</div>`r`n<div id="editorDrawer" class="editor-drawer" aria-hidden="true">`r`n  <div class="terminal-head">`r`n    <div class="terminal-title">Editor</div>`r`n    <button class="pill ghost" onclick="toggleEditor()">Close</button>`r`n  </div>`r`n  <div id="editor" class="editor"></div>`r`n</div>`r`n
 
 <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
   <div class="terminal-head">
@@ -125,6 +125,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

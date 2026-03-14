@@ -423,6 +423,7 @@ window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
 window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
+window.toggleEditor = toggleEditor;
 
 
 
@@ -454,4 +455,26 @@ window.addEventListener("keydown", (e) => {
 
 function openSettings(){
   addLog("Settings clicked");
+}
+
+function toggleEditor(){
+  const drawer = document.getElementById("editorDrawer");
+  const placeholder = document.getElementById("editorPlaceholder");
+  if(!drawer) return;
+  const isOpen = drawer.classList.contains("open");
+  drawer.classList.toggle("open", !isOpen);
+  drawer.setAttribute("aria-hidden", isOpen ? "true" : "false");
+  if(placeholder){
+    placeholder.style.display = isOpen ? "flex" : "none";
+  }
+  // Lazy init if editor not yet created (Monaco or fallback)
+  if(!window.editor && !isOpen){
+    if(window.require && window.require.config){
+      window.require(["vs/editor/editor.main"],function(){
+        initEditorWithMonaco();
+      });
+    }else{
+      initFallbackEditor();
+    }
+  }
 }

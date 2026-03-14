@@ -644,3 +644,39 @@ body{
   grid-template-rows:minmax(280px, 1fr) minmax(220px, 0.9fr);
 }
 
+
+.editor-placeholder{
+  border:1px dashed #2a2b2d;
+  border-radius:14px;
+  background:#111213;
+  color:#9aa0a6;
+  padding:16px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.editor-drawer{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:60vh;
+  background:#101112;
+  border-top:1px solid #222326;
+  transform:translateY(100%);
+  opacity:0;
+  pointer-events:none;
+  transition:transform 0.2s ease, opacity 0.2s ease;
+  z-index:1000;
+}
+.editor-drawer.open{
+  transform:translateY(0);
+  opacity:1;
+  pointer-events:auto;
+}
+.editor-drawer .editor{
+  height:calc(60vh - 48px);
+  margin:0 16px 16px 16px;
+}
+
