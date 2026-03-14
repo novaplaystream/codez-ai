@@ -104,7 +104,7 @@
   <div class="app">
         <aside class="nav">
       <div class="nav-top">
-        <button class="nav-link" title="New thread">
+        <button class="nav-link" title="New thread" onclick="startNewThread()">
           <svg aria-hidden="true"><use href="#i-newthread"></use></svg>
           <span>New thread</span>
         </button>
@@ -127,7 +127,7 @@
               <span>codez-ai-main</span>
             </div>
             <div class="thread-actions">
-              <button class="icon-btn mini" title="New thread">
+              <button class="icon-btn mini" title="New thread" onclick="startNewThread()">
                 <svg aria-hidden="true"><use href="#i-thread"></use></svg>
               </button>
               <button class="icon-btn mini" title="Filter">
@@ -140,6 +140,10 @@
       </div>
 
       <div class="nav-footer">
+        <button class="nav-link" title="Add folder" onclick="triggerFileInput('aiFolder')">
+          <svg aria-hidden="true"><use href="#i-folder-plus"></use></svg>
+          <span>Add folder</span>
+        </button>
         <button class="nav-link">
           <svg aria-hidden="true"><use href="#i-add"></use></svg>
           <span>Add project</span>
@@ -223,6 +227,8 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
 

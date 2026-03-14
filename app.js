@@ -92,6 +92,17 @@ function triggerFileInput(id){
   const el = document.getElementById(id);
   if(el) el.click();
 }
+
+function startNewThread(){
+  const log = document.getElementById("chatLog");
+  const result = document.getElementById("result");
+  const input = document.getElementById("chatInput");
+  if(log) log.innerHTML = "";
+  if(result && !log) result.textContent = "";
+  if(input) input.value = "";
+  attachments = [];
+  updateAttachInfo();
+}
 function setIconButton(btn, title){
   if(!btn) return;
   btn.setAttribute("title", title);
@@ -566,6 +577,7 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+window.startNewThread = startNewThread;
 window.triggerFileInput = triggerFileInput;
 window.toggleEditorPanel = toggleEditorPanel;
 window.sendChatMessage = sendChatMessage;
@@ -666,6 +678,7 @@ function bindChatInput(){
     }
   });
 }
+
 
 
 
