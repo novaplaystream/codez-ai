@@ -422,7 +422,7 @@ window.pushRepo = pushRepo;
 window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
 window.toggleTerminal = toggleTerminal;
-window.openSettings = openSettings;
+window.openSettings = openSettings;`r`nwindow.cloneRepoUnified = cloneRepoUnified;`r`nwindow.analyzeUrlUnified = analyzeUrlUnified;
 window.toggleEditor = toggleEditor;
 
 
@@ -478,3 +478,19 @@ function toggleEditor(){
     }
   }
 }
+
+function cloneRepoUnified(){
+  const input = document.getElementById('actionUrl');
+  const repoUrl = (input && input.value || '').trim();
+  if(!repoUrl){ addLog('Repo URL missing'); return; }
+  document.getElementById('repoUrl').value = repoUrl;
+  cloneRepo();
+}
+function analyzeUrlUnified(){
+  const input = document.getElementById('actionUrl');
+  const url = (input && input.value || '').trim();
+  if(!url){ addLog('URL missing'); return; }
+  document.getElementById('analyzeUrl').value = url;
+  analyzeUrl();
+}
+

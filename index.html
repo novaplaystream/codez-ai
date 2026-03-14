@@ -41,30 +41,49 @@
           </div>
           <div class="status" id="authStatus">Guest</div>
         </div>
-        <div class="topbar-actions">
-          <button class="pill" onclick="runAI('explain')">Explain</button>
-          <button class="pill" onclick="runAI('fix')">Fix Bug</button>
-          <button class="pill" onclick="runAI('optimize')">Optimize</button>
-          <button class="pill ghost" onclick="runCode()">Run</button>
-          <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
-          <button class="pill ghost" onclick="openSettings()">Settings</button>
-          <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
-          <button class="pill" id="googleBtn" onclick="loginGoogle()">Google Login</button>
+        <div class="topbar-actions icon-bar">
+          <button class="icon-btn" title="Explain" onclick="runAI('explain')">
+            <span class="icon" aria-hidden="true">?</span>
+          </button>
+          <button class="icon-btn" title="Fix Bug" onclick="runAI('fix')">
+            <span class="icon" aria-hidden="true">!</span>
+          </button>
+          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')">
+            <span class="icon" aria-hidden="true">?</span>
+          </button>
+          <button class="icon-btn" title="Run" onclick="runCode()">
+            <span class="icon" aria-hidden="true">?</span>
+          </button>
+          <button class="icon-btn" title="Terminal" onclick="toggleTerminal()">
+            <span class="icon" aria-hidden="true">?</span>
+          </button>
+          <button class="icon-btn" title="Settings" onclick="openSettings()">
+            <span class="icon" aria-hidden="true">?</span>
+          </button>
+          <button class="icon-btn" title="GitHub Login" id="loginBtn" onclick="loginGithub()">
+            <span class="icon" aria-hidden="true">GH</span>
+          </button>
+          <button class="icon-btn" title="Google Login" id="googleBtn" onclick="loginGoogle()">
+            <span class="icon" aria-hidden="true">G</span>
+          </button>
         </div>
       </header>
 
-      <section class="repo-bar">
-        <input id="repoUrl" type="text" placeholder="https://github.com/user/repo.git">
-        <button class="pill" onclick="cloneRepo()">Clone</button>
-        <button class="pill" onclick="pullRepo()">Pull</button>
+      <section class="unified-bar">
+        <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL">
+        <button class="icon-btn" title="Clone Repo" onclick="cloneRepoUnified()">
+          <span class="icon" aria-hidden="true">?</span>
+        </button>
+        <button class="icon-btn" title="Analyze URL" onclick="analyzeUrlUnified()">
+          <span class="icon" aria-hidden="true">??</span>
+        </button>
         <input id="commitMsg" type="text" placeholder="Commit message">
-        <button class="pill" onclick="pushRepo()">Commit + Push</button>
-        <button class="pill ghost" onclick="saveFile()">Save File</button>
-      </section>
-
-      <section class="analyze-bar">
-        <input id="analyzeUrl" type="text" placeholder="https://example.com">
-        <button class="pill" onclick="analyzeUrl()">Analyze URL</button>
+        <button class="icon-btn" title="Commit + Push" onclick="pushRepo()">
+          <span class="icon" aria-hidden="true">?</span>
+        </button>
+        <button class="icon-btn" title="Save File" onclick="saveFile()">
+          <span class="icon" aria-hidden="true">??</span>
+        </button>
         <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
       </section>
 
@@ -76,12 +95,12 @@
             <div class="ai-tag" id="modelTag">model: deepseek</div>
           </div>
           <div class="attach-row">
-            <label class="file-btn small">
-              Add File
+            <label class="icon-btn" title="Add File">
+              <span class="icon" aria-hidden="true">+</span>
               <input type="file" id="aiFile" multiple>
             </label>
-            <label class="file-btn small">
-              Add Folder
+            <label class="icon-btn" title="Add Folder">
+              <span class="icon" aria-hidden="true">??</span>
               <input type="file" id="aiFolder" webkitdirectory multiple>
             </label>
             <div class="attach-info" id="attachInfo">No attachments</div>
@@ -100,7 +119,7 @@
   <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
     <div class="terminal-head">
       <div class="terminal-title">Terminal</div>
-      <button class="pill ghost" onclick="toggleTerminal()">Close</button>
+      <button class="icon-btn" title="Close" onclick="toggleTerminal()"><span class="icon">?</span></button>
     </div>
     <div id="terminal" class="terminal">Terminal ready...</div>
   </div>
