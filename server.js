@@ -12,7 +12,7 @@ import path from "path";
 import fs from "fs";
 import { simpleGit } from "simple-git";
 import * as cheerio from "cheerio";
-import { Groq } from "@groq/groq-sdk";   // ← नया import
+import { Groq } from "groq-sdk";   
 
 const app = express();
 const PORT = process.env.PORT || 3000;
