@@ -1,7 +1,3 @@
-require.config({
-  paths:{vs:"https://unpkg.com/monaco-editor@0.45.0/min/vs"}
-});
-
 const API_BASE = (window.API_BASE)
   || (location.hostname.endsWith("github.io") ? "https://codez-ai-production.up.railway.app" : "");
 
@@ -12,8 +8,10 @@ function apiUrl(path){
 let currentRepoId = null;
 let currentFilePath = null;
 let attachments = [];
+let editorInitTimer = null;
 
-require(["vs/editor/editor.main"],function(){
+function initEditorWithMonaco(){
+  if(editorInitTimer) clearTimeout(editorInitTimer);
   window.editor=monaco.editor.create(
     document.getElementById("editor"),
     {
@@ -27,8 +25,45 @@ require(["vs/editor/editor.main"],function(){
   addLog("Editor initialized");
   bootstrapAuth();
   bindAttachmentInputs();
-});
+}
 
+function initFallbackEditor(){
+  if(editorInitTimer) clearTimeout(editorInitTimer);
+  const host = document.getElementById("editor");
+  if(!host) return;
+  const textarea = document.createElement("textarea");
+  textarea.className = "editor-fallback";
+  textarea.spellcheck = false;
+  host.innerHTML = "";
+  host.appendChild(textarea);
+  window.editor = {
+    getValue: () => textarea.value,
+    setValue: (value) => { textarea.value = value || ""; }
+  };
+  addLog("Monaco unavailable; using fallback editor");
+  bootstrapAuth();
+  bindAttachmentInputs();
+}
+
+if(window.require && window.require.config){
+  window.require.config({
+    paths:{vs:"https://unpkg.com/monaco-editor@0.45.0/min/vs"}
+  });
+
+  window.require(["vs/editor/editor.main"],function(){
+    initEditorWithMonaco();
+  });
+
+  editorInitTimer = setTimeout(() => {
+    if(!window.editor) initFallbackEditor();
+  }, 4000);
+}else{
+  if(document.readyState === "loading"){
+    window.addEventListener("DOMContentLoaded", initFallbackEditor);
+  }else{
+    initFallbackEditor();
+  }
+}
 function addLog(text){
   const log=document.getElementById("log");
   if(!log) return;
@@ -379,5 +414,11 @@ async function pushRepo(){
   }
   addLog("Push complete");
 }
+
+
+
+
+
+
 
 
