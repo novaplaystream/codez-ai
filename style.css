@@ -449,6 +449,9 @@ body{
   height:100vh;
   overflow:hidden;
   grid-column:1;
+  display:grid;
+  grid-template-rows:auto auto auto 1fr;
+  min-height:0;
 }
 .codex-ui .topbar{
   background:#141516;
@@ -481,28 +484,32 @@ body{
 .codex-ui .workbench{
   padding:12px 18px 18px 18px;
   gap:14px;
-  height:calc(100vh - 160px);
   display:grid;
   grid-template-columns:1fr;
-  grid-template-rows:1fr auto;
+  grid-template-rows:minmax(320px, 55vh) minmax(220px, 1fr);
   align-items:stretch;
   justify-items:center;
+  min-height:0;
 }
 .codex-ui .editor{
   background:#0f1011;
   border:1px solid #202225;
   width:min(980px, 100%);
   justify-self:center;
+  height:100%;
 }
 .codex-ui .ai{
   background:#141516;
   border:1px solid #202225;
   width:min(760px, 100%);
   justify-self:center;
+  height:100%;
 }
 .codex-ui .chat{
   background:#0f1011;
   border:1px solid #202225;
+  flex:1;
+  overflow:auto;
 }
 .codex-ui .analysis{
   display:none;
@@ -569,4 +576,35 @@ body{
 
 
 
+
+
+
+/* Compact top controls */
+.codex-ui .topbar{
+  padding:8px 14px;
+}
+.codex-ui .title-main{
+  font-size:14px;
+}
+.codex-ui .title-sub{
+  font-size:11px;
+}
+.codex-ui .topbar-actions{
+  gap:6px;
+}
+.codex-ui .pill{
+  padding:4px 10px;
+  font-size:11px;
+}
+.codex-ui .repo-bar, .codex-ui .analyze-bar{
+  padding:6px 14px;
+  gap:6px;
+}
+.codex-ui .repo-bar input, .codex-ui .analyze-bar input{
+  padding:6px 8px;
+  font-size:11px;
+}
+.codex-ui .analyze-status{
+  font-size:10px;
+}
 
