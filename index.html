@@ -3,9 +3,10 @@
 <head>
 <title>Codez AI IDE</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js" defer></script>
 </head>
 <body>
+<div id="bootError" class="boot-error" hidden></div>
 <div class="app">
   <aside class="nav">
     <div class="nav-group">
@@ -109,6 +110,26 @@
   </main>
 </div>
 
-<script src="app.js"></script>
+<script>
+  (function(){
+    const el = document.getElementById("bootError");
+    function show(msg){
+      if(!el) return;
+      el.hidden = false;
+      el.textContent = msg;
+    }
+    window.addEventListener("error", function(e){
+      if(e && e.target && e.target.tagName === "SCRIPT"){
+        show("Script failed to load: " + (e.target.src || "unknown"));
+      }else{
+        show("App error: " + (e.message || e.type));
+      }
+    });
+  })();
+</script>
+<script src="app.js?v=20260314" defer></script>
 </body>
 </html>
+
+
+
