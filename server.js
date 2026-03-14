@@ -36,7 +36,7 @@ app.use(express.static(process.cwd()));
 app.get("/", (req, res) => res.send("OK"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-// MongoDB और session setup (वही रखो, change नहीं)
+
 
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || "";
 if (mongoUri) {
@@ -45,18 +45,18 @@ if (mongoUri) {
     .catch(err => console.error("MongoDB connection failed", err));
 }
 
-// User, Chat, Log, Project schemas (वही रखो)
 
-// passport और auth routes (वही रखो)
 
-// Groq client initialize
+
+
+
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// नया AI call function
+
 async function callGroqAI(prompt, attachments = []) {
   let fullPrompt = prompt;
 
-  // attachments को prompt में जोड़ो
+
   if (attachments && attachments.length > 0) {
     fullPrompt += "\n\n=== Attached Files/Context ===\n";
     attachments.forEach(att => {
@@ -74,7 +74,7 @@ async function callGroqAI(prompt, attachments = []) {
         },
         { role: "user", content: fullPrompt }
       ],
-      model: "deepseek-ai/deepseek-coder-v2-lite-preview",  // फ्री और अच्छा coding model
+      model: "deepseek-ai/deepseek-coder-v2-lite-preview",  
       temperature: 0.6,
       max_tokens: 4096,
       top_p: 0.9
@@ -90,9 +90,9 @@ async function callGroqAI(prompt, attachments = []) {
   }
 }
 
-// AI endpoint (ये replace कर दो पुराने /ai से)
+
 app.post("/ai", async (req, res) => {
-  const { prompt, attachments } = req.body;  // अब attachments भी accept करेगा
+  const { prompt, attachments } = req.body;  
 
   if (!prompt) {
     return res.status(400).json({ error: "No prompt provided" });
@@ -104,7 +104,7 @@ app.post("/ai", async (req, res) => {
     return res.json({ result: `AI error: ${aiResponse.error}` });
   }
 
-  // save chat अगर user logged in
+
   if (req.user) {
     await Chat.create({
       userId: req.user.id,
@@ -116,7 +116,7 @@ app.post("/ai", async (req, res) => {
   res.json({ result: aiResponse.result });
 });
 
-// बाकी सारे routes वैसे ही रखो (clone, pull, push, analyze, etc.)
+
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Codez AI running on port ${PORT}`);
