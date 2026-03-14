@@ -7,6 +7,11 @@
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="i-editor" viewBox="0 0 24 24">
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2"></rect>
+      <path d="M7 9h10M7 13h6"></path>
+      <path d="M14.5 15.5l4 4"></path>
+    </symbol>
     <symbol id="i-help" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="9"></circle>
       <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"></path>
@@ -105,6 +110,7 @@
           <div class="status" id="authStatus">Guest</div>
         </div>
         <div class="topbar-actions icon-bar">
+          <button class="icon-btn" title="Editor" onclick="toggleEditorPanel()"><svg aria-hidden="true"><use href="#i-editor"></use></svg></button>
           <button class="icon-btn" title="Explain" onclick="runAI('explain')"><svg aria-hidden="true"><use href="#i-help"></use></svg></button>
           <button class="icon-btn" title="Fix Bug" onclick="runAI('fix')"><svg aria-hidden="true"><use href="#i-bug"></use></svg></button>
           <button class="icon-btn" title="Optimize" onclick="runAI('optimize')"><svg aria-hidden="true"><use href="#i-bolt"></use></svg></button>
@@ -126,8 +132,8 @@
         <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
       </section>
 
-      <section class="workbench">
-        <div id="editor" class="editor"></div>
+      <section class="workbench editor-hidden">
+        <div id="editor" class="editor hidden"></div>
         <div class="ai">
           <div class="ai-header">
             <div class="ai-title">AI Chat</div>
@@ -166,6 +172,8 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
 

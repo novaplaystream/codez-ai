@@ -175,7 +175,18 @@ function setAnalysisVisible(show){
   panel.classList.toggle("hidden", !show);
 }
 
-function initAnalysisPanel(){
+
+function toggleEditorPanel(){
+  const editorEl = document.getElementById("editor");
+  const workbench = document.querySelector(".workbench");
+  if(!editorEl || !workbench) return;
+  const willShow = editorEl.classList.contains("hidden");
+  editorEl.classList.toggle("hidden", !willShow);
+  workbench.classList.toggle("editor-hidden", !willShow);
+  if(willShow && window.editor && typeof window.editor.layout === "function"){
+    window.editor.layout();
+  }
+}function initAnalysisPanel(){
   const input = document.getElementById("actionUrl");
   const toggle = () => {
     const hasUrl = !!(input && input.value.trim());
@@ -491,6 +502,7 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+
 
 
 

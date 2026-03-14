@@ -138,3 +138,6 @@ body{
 
 .analysis.hidden{display:none;}
 
+
+.workbench.editor-hidden{grid-template-columns:1fr;}
+
