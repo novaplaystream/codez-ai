@@ -1,251 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Codez AI IDE</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Codez AI – Codex Style</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
 </head>
 <body>
-  <svg class="icon-sprite" aria-hidden="true">
-    <symbol id="i-editor" viewBox="0 0 24 24">
-      <rect x="3.5" y="4.5" width="17" height="15" rx="2"></rect>
-      <path d="M7 9h10M7 13h6"></path>
-      <path d="M14.5 15.5l4 4"></path>
-    </symbol>
-        <symbol id="i-newthread" viewBox="0 0 24 24">
-      <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-      <path d="M12 8v8M8 12h8"></path>
-    </symbol>
-    <symbol id="i-automations" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="8"></circle>
-      <path d="M12 8v5l3 2"></path>
-    </symbol>
-    <symbol id="i-skills" viewBox="0 0 24 24">
-      <rect x="5" y="5" width="5" height="5" rx="1"></rect>
-      <rect x="14" y="5" width="5" height="5" rx="1"></rect>
-      <rect x="5" y="14" width="5" height="5" rx="1"></rect>
-      <rect x="14" y="14" width="5" height="5" rx="1"></rect>
-    </symbol>
-    <symbol id="i-folder" viewBox="0 0 24 24">
-      <path d="M4 8h6l2 2h8v8H4z"></path>
-    </symbol>
-    <symbol id="i-filter" viewBox="0 0 24 24">
-      <path d="M4 6h16M7 12h10M10 18h4"></path>
-    </symbol>
-    <symbol id="i-add" viewBox="0 0 24 24">
-      <path d="M12 5v14M5 12h14"></path>
-    </symbol>
-    <symbol id="i-thread" viewBox="0 0 24 24">
-      <rect x="4" y="5" width="16" height="12" rx="3"></rect>
-      <path d="M8 20l3-3"></path>
-    </symbol><symbol id="i-help" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9"></circle>
-      <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"></path>
-      <circle cx="12" cy="17.5" r="0.7" fill="currentColor" stroke="none"></circle>
-    </symbol>
-    <symbol id="i-bug" viewBox="0 0 24 24">
-      <path d="M8 7h8v10H8z"></path>
-      <path d="M10 7V5m4 2V5m-7 7H4m3 4H4m13-4h3m-3 4h3M9 17l-2 2m8-2 2 2"></path>
-      <circle cx="12" cy="4.5" r="1.2"></circle>
-    </symbol>
-    <symbol id="i-bolt" viewBox="0 0 24 24">
-      <path d="M13 2 3 14h7l-1 8 10-12h-7z"></path>
-    </symbol>
-    <symbol id="i-play" viewBox="0 0 24 24">
-      <path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"></path>
-    </symbol>
-    <symbol id="i-terminal" viewBox="0 0 24 24">
-      <rect x="3.5" y="5.5" width="17" height="13" rx="2"></rect>
-      <path d="M7 10l3 3-3 3M12 16h5"></path>
-    </symbol>
-    <symbol id="i-settings" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="3.2"></circle>
-      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4"></path>
-    </symbol>
-    <symbol id="i-github" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9"></circle>
-      <text x="12" y="15" font-size="8" text-anchor="middle" fill="currentColor" stroke="none">GH</text>
-    </symbol>
-    <symbol id="i-google" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9"></circle>
-      <text x="12" y="15" font-size="8" text-anchor="middle" fill="currentColor" stroke="none">G</text>
-    </symbol>
-    <symbol id="i-clone" viewBox="0 0 24 24">
-      <rect x="5" y="6" width="10" height="10" rx="2"></rect>
-      <rect x="9" y="8" width="10" height="10" rx="2"></rect>
-    </symbol>
-    <symbol id="i-search" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="6"></circle>
-      <path d="M16.5 16.5 20 20"></path>
-    </symbol>
-    <symbol id="i-upload" viewBox="0 0 24 24">
-      <path d="M12 16V6"></path>
-      <path d="M8 10l4-4 4 4"></path>
-      <path d="M5 18h14"></path>
-    </symbol>
-    <symbol id="i-save" viewBox="0 0 24 24">
-      <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-      <path d="M7 4v6h10V4"></path>
-      <rect x="8" y="14" width="8" height="4" rx="1"></rect>
-    </symbol>
-    <symbol id="i-file-plus" viewBox="0 0 24 24">
-      <path d="M7 4h7l4 4v12H7z"></path>
-      <path d="M14 4v4h4"></path>
-      <path d="M12 14v6M9 17h6"></path>
-    </symbol>
-    <symbol id="i-folder-plus" viewBox="0 0 24 24">
-      <path d="M4 8h6l2 2h8v8H4z"></path>
-      <path d="M12 12v6M9 15h6"></path>
-    </symbol>
-    <symbol id="i-close" viewBox="0 0 24 24">
-      <path d="M6 6l12 12M18 6l-12 12"></path>
-    </symbol>
-  </svg>
   <div class="app">
-        <aside class="nav">
+    <!-- Left Sidebar -->
+    <nav class="nav">
       <div class="nav-top">
-        <button class="nav-link" title="New thread" onclick="startNewThread()">
-          <svg aria-hidden="true"><use href="#i-newthread"></use></svg>
-          <span>New thread</span>
-        </button>
-        <button class="nav-link">
-          <svg aria-hidden="true"><use href="#i-automations"></use></svg>
-          <span>Automations</span>
-        </button>
-        <button class="nav-link">
-          <svg aria-hidden="true"><use href="#i-skills"></use></svg>
-          <span>Skills</span>
+        <button class="nav-link" onclick="startNewThread()">
+          <svg><use href="#i-newthread"></use></svg> New Conversation
         </button>
       </div>
 
       <div class="nav-section">
-        <div class="nav-section-title">Threads</div>
+        <div class="nav-section-title">Conversations</div>
         <div class="thread-group">
-          <div class="thread-group-head">
-            <div class="thread-group-left">
-              <svg aria-hidden="true"><use href="#i-folder"></use></svg>
-              <span>codez-ai-main</span>
-            </div>
-            <div class="thread-actions">
-              <button class="icon-btn mini" title="New thread" onclick="startNewThread()">
-                <svg aria-hidden="true"><use href="#i-thread"></use></svg>
-              </button>
-              <button class="icon-btn mini" title="Filter">
-                <svg aria-hidden="true"><use href="#i-filter"></use></svg>
-              </button>
-            </div>
+          <div class="thread-item active">
+            <div class="thread-title">Batao project ke bare mein</div>
+            <div class="thread-time">just now</div>
           </div>
-          <div id="history" class="thread-list"></div>
         </div>
       </div>
 
       <div class="nav-footer">
-        <button class="nav-link" title="Add folder" onclick="triggerFileInput('aiFolder')">
-          <svg aria-hidden="true"><use href="#i-folder-plus"></use></svg>
-          <span>Add folder</span>
-        </button>
-        <button class="nav-link">
-          <svg aria-hidden="true"><use href="#i-add"></use></svg>
-          <span>Add project</span>
-        </button>
+        <div class="status" id="authStatus">Guest</div>
+        <button id="loginBtn" class="nav-link">GitHub Login</button>
       </div>
-    </aside>
+    </nav>
 
+    <!-- Main Area -->
     <main class="main">
       <header class="topbar">
         <div class="topbar-left">
           <div class="title">
-            <span class="title-main">Batao project ke bare mein</span>
-            <span class="title-sub">codez-ai-main</span>
+            <div class="title-main">Codez AI</div>
+            <div class="title-sub">Your AI coding partner</div>
           </div>
-          <div class="status" id="authStatus">Guest</div>
+          <div class="status" id="modelTag">model: llama-3.3-70b</div>
         </div>
-        <div class="topbar-actions icon-bar">
-          <button class="icon-btn" title="Editor" onclick="toggleEditorPanel()"><svg aria-hidden="true"><use href="#i-editor"></use></svg></button>
-          <button class="icon-btn" title="Explain" onclick="runAI('explain')"><svg aria-hidden="true"><use href="#i-help"></use></svg></button>
-          <button class="icon-btn" title="Fix Bug" onclick="runAI('fix')"><svg aria-hidden="true"><use href="#i-bug"></use></svg></button>
-          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')"><svg aria-hidden="true"><use href="#i-bolt"></use></svg></button>
-          <button class="icon-btn" title="Run" onclick="runCode()"><svg aria-hidden="true"><use href="#i-play"></use></svg></button>
-          <button class="icon-btn" title="Terminal" onclick="toggleTerminal()"><svg aria-hidden="true"><use href="#i-terminal"></use></svg></button>
-          <button class="icon-btn" title="Settings" onclick="openSettings()"><svg aria-hidden="true"><use href="#i-settings"></use></svg></button>
-          <button class="icon-btn" title="GitHub Login" id="loginBtn" onclick="loginGithub()"><svg aria-hidden="true"><use href="#i-github"></use></svg></button>
-          <button class="icon-btn" title="Google Login" id="googleBtn" onclick="loginGoogle()"><svg aria-hidden="true"><use href="#i-google"></use></svg></button>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Generate" onclick="runAI('generate')">Generate</button>
+          <button class="icon-btn" title="Explain" onclick="runAI('explain')">Explain</button>
+          <button class="icon-btn" title="Debug" onclick="runAI('debug')">Debug</button>
+          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')">Optimize</button>
         </div>
       </header>
 
       <section class="unified-bar">
-        <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL">
-        <button class="icon-btn" title="Clone Repo" onclick="cloneRepoUnified()"><svg aria-hidden="true"><use href="#i-clone"></use></svg></button>
-        <button class="icon-btn" title="Analyze URL" onclick="analyzeUrlUnified()"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
-        <input id="commitMsg" type="text" placeholder="Commit message">
-        <button class="icon-btn" title="Commit + Push" onclick="pushRepo()"><svg aria-hidden="true"><use href="#i-upload"></use></svg></button>
-        <button class="icon-btn" title="Save File" onclick="saveFile()"><svg aria-hidden="true"><use href="#i-save"></use></svg></button>
-        <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
+        <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL" />
+        <button class="icon-btn" onclick="cloneRepoUnified()">Clone</button>
+        <input id="commitMsg" type="text" placeholder="Commit message" />
+        <button class="icon-btn" onclick="pushRepo()">Commit & Push</button>
       </section>
 
-      <section class="workbench editor-hidden">
-        <div id="editor" class="editor hidden" hidden></div>
+      <section class="workbench">
+        <div id="editor" class="editor"></div>
+
         <div class="ai">
           <div class="attach-row">
-            <label class="icon-btn" title="Add File" for="aiFile">
-              <svg aria-hidden="true"><use href="#i-file-plus"></use></svg>
-            </label>
-            <label class="icon-btn" title="Add Folder" for="aiFolder">
-              <svg aria-hidden="true"><use href="#i-folder-plus"></use></svg>
-            </label>
-            <input type="file" id="aiFile" multiple class="hidden-input">
-            <input type="file" id="aiFolder" webkitdirectory multiple class="hidden-input">
+            <label class="icon-btn" for="aiFile"><svg><use href="#i-file-plus"></use></svg></label>
+            <input type="file" id="aiFile" multiple class="hidden-input" />
             <div class="attach-info" id="attachInfo">No attachments</div>
-            <div class="ai-tag" id="modelTag">model: deepseek</div>
+            <div class="ai-tag">Groq Powered</div>
           </div>
+
           <div id="result" class="chat">
             <div id="chatLog" class="chat-log"></div>
           </div>
+
           <div class="chat-input">
-            <input id="chatInput" type="text" placeholder="Ask for follow-up changes" />
-            <button class="chat-send" title="Send" onclick="sendChatMessage()">
-              <svg aria-hidden="true"><use href="#i-play"></use></svg>
+            <input id="chatInput" placeholder="Ask anything – code generate karo, explain karo, fix karo..." />
+            <button class="chat-send" onclick="sendChatMessage()">
+              <svg><use href="#i-play"></use></svg>
             </button>
           </div>
         </div>
       </section>
-
-      <section class="analysis hidden">
-        <div class="analysis-title">URL Analysis</div>
-        <pre id="analysisResult" class="analysis-result">No analysis yet.</pre>
-      </section>
     </main>
-  </div>
-
-  <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
-    <div class="terminal-head">
-      <div class="terminal-title">Terminal</div>
-      <button class="icon-btn" title="Close" onclick="toggleTerminal()"><svg aria-hidden="true"><use href="#i-close"></use></svg></button>
-    </div>
-    <div id="terminal" class="terminal">Terminal ready...</div>
   </div>
 
   <script src="app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
