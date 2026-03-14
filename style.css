@@ -63,7 +63,19 @@ body{
 
 .icon-btn:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);}
 
-.icon-btn input{display:none;}\n\n.icon-btn img{\n  width:16px;\n  height:16px;\n  display:block;\n  filter:brightness(0) invert(1);\n  opacity:0.9;\n}
+.icon-btn input{display:none;}
+
+.icon-btn svg{
+  width:16px;
+  height:16px;
+  display:block;
+  stroke:currentColor;
+  stroke-width:2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:0.95;
+}
 
 .unified-bar{display:flex;gap:8px;padding:8px 14px;align-items:center;flex-wrap:wrap;}
 
@@ -113,10 +125,13 @@ body{
 
 @media (max-width:800px){.app{grid-template-columns:1fr;}.nav{display:none;}.terminal-drawer{left:0;}}
 
-.icon-btn svg{
-  width:16px;
-  height:16px;
-  stroke:currentColor;
-}
+
+
+
+
+.icon-sprite{position:absolute;width:0;height:0;overflow:hidden;}
+
+
+
 
 
