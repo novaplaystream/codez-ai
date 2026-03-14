@@ -69,7 +69,7 @@ function addLog(text){
   if(!log) return;
   const row=document.createElement("div");
   row.className="log-entry";
-  row.innerHTML=`<span class="log-dot"></span><span>${new Date().toLocaleTimeString()} — ${text}</span>`;
+  row.innerHTML=`<span class="log-dot"></span><span>${new Date().toLocaleTimeString()} - ${text}</span>`;
   log.prepend(row);
 
   fetch(apiUrl("/api/logs"), {
@@ -211,21 +211,10 @@ async function runAI(mode){
 
   let attachText = "";
   if(attachments.length>0){
-    attachText = "
-
-Attached files:
-" + attachments.map(a => `--- ${a.name} ---
-${a.content}`).join("
-
-");
+    attachText = "\n\nAttached files:\n" + attachments.map(a => `--- ${a.name} ---\n${a.content}`).join("\n\n");
   }
 
-  const prompt=mode+" this code:
-
-"+code+(userNote?"
-
-User note:
-"+userNote:"")+attachText;
+  const prompt=mode+" this code:\n\n"+code+(userNote?"\n\nUser note:\n"+userNote:"")+attachText;
 
   addLog("Sent request: "+mode);
   document.getElementById("result").textContent="Thinking...";
@@ -292,12 +281,10 @@ function runCode(){
 
   try{
     const result=eval(code);
-    terminal.textContent+="
-"+result;
+    terminal.textContent+="\n"+result;
     addLog("Code ran successfully");
   }catch(e){
-    terminal.textContent+="
-Error: "+e;
+    terminal.textContent+="\nError: "+e;
     addLog("Runtime error");
   }
 }
@@ -434,4 +421,11 @@ window.pullRepo = pullRepo;
 window.pushRepo = pushRepo;
 window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
+
+
+
+
+
+
+
 
