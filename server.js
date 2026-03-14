@@ -73,7 +73,7 @@ async function callGroqAI(prompt, attachments = []) {
         },
         { role: "user", content: fullPrompt }
       ],
-      model: "deepseek-r1-distill-llama-70b",   // ← Yeh line change kardi
+     model: "llama-3.3-70b-versatile",   // ← Yeh line change kardi
       temperature: 0.3,      // Codex jaisa deterministic
       max_tokens: 4096,
       top_p: 0.95
