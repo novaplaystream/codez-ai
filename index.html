@@ -74,7 +74,7 @@
     <symbol id="i-close" viewBox="0 0 24 24">
       <path d="M6 6l12 12M18 6l-12 12"></path>
     </symbol>
-  </svg>\n  <div class="app">
+  </svg>`r`n  <div class="app">
     <aside class="nav">
       <div class="nav-group">
         <div class="nav-title">New Thread</div>
@@ -135,10 +135,6 @@
       <section class="workbench editor-hidden">
         <div id="editor" class="editor hidden" hidden></div>
         <div class="ai">
-          <div class="ai-header">
-            <div class="ai-title">AI Chat</div>
-            <div class="ai-tag" id="modelTag">model: deepseek</div>
-          </div>
           <div class="attach-row">
             <label class="icon-btn" title="Add File">
               <svg aria-hidden="true"><use href="#i-file-plus"></use></svg>
@@ -149,6 +145,7 @@
               <input type="file" id="aiFolder" webkitdirectory multiple>
             </label>
             <div class="attach-info" id="attachInfo">No attachments</div>
+            <div class="ai-tag" id="modelTag">model: deepseek</div>
           </div>
           <div id="result" class="chat"></div>
         </div>
@@ -172,6 +169,9 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
+
 
 
 
