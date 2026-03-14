@@ -584,12 +584,49 @@ window.sendChatMessage = sendChatMessage;
 
 
 
+
+function copyChatMessage(text){
+  if(!text) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(()=>{});
+    return;
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+function deleteChatMessage(el){
+  if(!el) return;
+  el.remove();
+}
 function appendChatMessage(role, text){
   const log = document.getElementById("chatLog") || document.getElementById("result");
   if(!log) return null;
   const row = document.createElement("div");
   row.className = "chat-msg " + role;
-  row.textContent = text;
+  const body = document.createElement("div");
+  body.className = "chat-msg-body";
+  body.textContent = text;
+  const actions = document.createElement("div");
+  actions.className = "chat-msg-actions";
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "chat-msg-btn";
+  copyBtn.textContent = "Copy";
+  copyBtn.onclick = (e)=>{ e.stopPropagation(); copyChatMessage(body.textContent); };
+  const delBtn = document.createElement("button");
+  delBtn.className = "chat-msg-btn danger";
+  delBtn.textContent = "Delete";
+  delBtn.onclick = (e)=>{ e.stopPropagation(); deleteChatMessage(row); };
+  actions.appendChild(copyBtn);
+  actions.appendChild(delBtn);
+  row.appendChild(body);
+  row.appendChild(actions);
   log.appendChild(row);
   const scroller = log.closest(".chat") || log;
   scroller.scrollTop = scroller.scrollHeight;
@@ -629,6 +666,7 @@ function bindChatInput(){
     }
   });
 }
+
 
 
 
