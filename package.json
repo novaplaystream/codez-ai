@@ -7,7 +7,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@groq/groq-sdk": "^1.1.1",          // Groq AI के लिए (latest 2026 में 1.1.1+)
+    "@groq/groq-sdk": "^1.1.1",        
     "cheerio": "^1.0.0-rc.12",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
