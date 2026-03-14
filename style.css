@@ -91,8 +91,7 @@ body{
 
 .editor{border-radius:12px;border:1px solid #202225;overflow:hidden;min-height:320px;background:#0f1011;}
 
-.ai{background:#141516;border:1px solid #202225;border-radius:12px;padding:12px;display:flex;flex-direction:column;min-height:320px;}
-
+.ai{background:#141516;border:1px solid #202225;border-radius:12px;padding:12px;display:flex;flex-direction:column;min-height:320px;min-width:0;overflow:hidden;}
 .ai-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 
 .ai-title{font-weight:600;font-size:13px;}
@@ -103,8 +102,7 @@ body{
 
 .attach-info{font-size:11px;color:var(--muted);}
 
-.chat{flex:1;overflow:auto;background:#0f1011;border:1px solid #202225;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px;line-height:1.6;color:#e2e8f0;}
-
+.chat{flex:1;min-height:200px;overflow:auto;background:#0f1011;border:1px solid #202225;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px;line-height:1.6;color:#e2e8f0;}
 .analysis{padding:0 14px 10px 14px;}
 
 .analysis-title{font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
@@ -154,4 +152,5 @@ body{
 .chat-input input{flex:1;background:transparent;border:none;color:#e6e6e6;font-size:12px;outline:none;}
 .chat-send{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);cursor:pointer;color:#e6e6e6;}
 .chat-send svg{width:16px;height:16px;fill:currentColor;stroke:none;}
+
 
