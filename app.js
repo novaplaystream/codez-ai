@@ -25,6 +25,7 @@ function initEditorWithMonaco(){
   addLog("Editor initialized");
   bootstrapAuth();
   bindAttachmentInputs();
+  initAnalysisPanel();
 }
 
 function initFallbackEditor(){
@@ -43,6 +44,7 @@ function initFallbackEditor(){
   addLog("Monaco unavailable; using fallback editor");
   bootstrapAuth();
   bindAttachmentInputs();
+  initAnalysisPanel();
 }
 
 if(window.require && window.require.config){
@@ -164,15 +166,24 @@ async function addAttachments(files){
 }
 
 function updateAttachInfo(){
-  const el = document.getElementById("attachInfo");
-  if(!el) return;
-  if(attachments.length===0){
-    el.textContent = "No attachments";
-  }else{
-    el.textContent = attachments.length + " file(s) attached";
-  }
+
 }
 
+function setAnalysisVisible(show){
+  const panel = document.querySelector(".analysis");
+  if(!panel) return;
+  panel.classList.toggle("hidden", !show);
+}
+
+function initAnalysisPanel(){
+  const input = document.getElementById("actionUrl");
+  const toggle = () => {
+    const hasUrl = !!(input && input.value.trim());
+    setAnalysisVisible(hasUrl);
+  };
+  if(input) input.addEventListener("input", toggle);
+  toggle();
+}
 async function loadHistory(){
   const el = document.getElementById("history");
   if(!el) return;
@@ -261,10 +272,12 @@ async function analyzeUrl(urlOverride){
   const out = document.getElementById("analysisResult");
   if(!url){
     status.textContent = "URL missing";
+    setAnalysisVisible(false);
     return;
   }
   status.textContent = "Analyzing...";
   out.textContent = "Working...";
+  setAnalysisVisible(true);
   try{
     const res = await fetch(apiUrl("/api/analyze-url"), {
       method:"POST",
@@ -478,6 +491,9 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+
+
+
 
 
 
