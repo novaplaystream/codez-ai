@@ -418,12 +418,14 @@ body{
   overflow:hidden;
 }
 .codex-ui .app{
-  grid-template-columns:260px 1fr;
+  grid-template-columns:1fr 260px;
   height:100vh;
 }
 .codex-ui .nav{
   background:#121313;
-  border-right:1px solid #1e1f20;
+  border-left:1px solid #1e1f20;
+  border-right:0;
+  grid-column:2;
 }
 .codex-ui .nav-title{
   color:#9aa0a6;
@@ -446,6 +448,7 @@ body{
 .codex-ui .main{
   height:100vh;
   overflow:hidden;
+  grid-column:1;
 }
 .codex-ui .topbar{
   background:#141516;
@@ -483,10 +486,13 @@ body{
   grid-template-columns:1fr;
   grid-template-rows:1fr auto;
   align-items:stretch;
+  justify-items:center;
 }
 .codex-ui .editor{
   background:#0f1011;
   border:1px solid #202225;
+  width:min(980px, 100%);
+  justify-self:center;
 }
 .codex-ui .ai{
   background:#141516;
@@ -546,15 +552,20 @@ body{
 }
 @media (max-width:900px){
   .codex-ui .app{
-    grid-template-columns:1fr;
-  }
+  grid-template-columns:1fr 260px;
+  height:100vh;
+}
   .codex-ui .nav{
-    display:none;
-  }
+  background:#121313;
+  border-left:1px solid #1e1f20;
+  border-right:0;
+  grid-column:2;
+}
   .terminal-drawer{
     left:0;
   }
 }
+
 
 
 

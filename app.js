@@ -422,6 +422,7 @@ window.pushRepo = pushRepo;
 window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
 window.toggleTerminal = toggleTerminal;
+window.openSettings = openSettings;
 
 
 
@@ -450,3 +451,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 
+
+function openSettings(){
+  addLog("Settings clicked");
+}
