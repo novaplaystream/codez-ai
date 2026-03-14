@@ -1,188 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Codez AI IDE</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+  <title>Codez AI IDE</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
 </head>
-<body class="codex-ui">
-<div id="bootError" class="boot-error" hidden></div>
-<div class="app">
-  <aside class="nav">
-    <div class="nav-group">
-      <div class="nav-title">New thread</div>
-      <div class="nav-item">Automations</div>
-      <div class="nav-item">Skills</div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-title">Threads</div>
-      <div class="nav-item active">Batao project ke bare mein</div>
-      <div class="nav-item">Playground 3</div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-title">Chat History</div>
-      <div id="history" class="files"></div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-title">Repos</div>
-      <div id="repos" class="files"></div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-title">Repo Files</div>
-      <div id="files" class="files"></div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="title">
-          <span class="title-main">Batao project ke bare mein</span>
-          <span class="title-sub">codez-ai-main</span>
-        </div>
-        <div class="status" id="authStatus">Guest</div>
+<body>
+  <div class="app">
+    <aside class="nav">
+      <div class="nav-group">
+        <div class="nav-title">New Thread</div>
+        <div class="nav-item">Automations</div>
+        <div class="nav-item">Skills</div>
       </div>
-      <div class="topbar-actions">
-        <button class="pill" onclick="runAI('explain')">Explain</button>
-        <button class="pill" onclick="runAI('fix')">Fix Bug</button>
-        <button class="pill" onclick="runAI('optimize')">Optimize</button>
-        <button class="pill ghost" onclick="toggleEditor()">Editor</button>
-        <button class="pill ghost" onclick="runCode()">Run</button>
-        <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
-        <button class="pill ghost" onclick="openSettings()">Settings</button>
-        <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
-        <button class="pill" id="googleBtn" onclick="loginGoogle()">Google Login</button>
+      <div class="nav-group">
+        <div class="nav-title">Threads</div>
+        <div class="nav-item active">Batao project ke bare mein</div>
+        <div class="nav-item">Playground 3</div>
       </div>
-    </header>
+      <div class="nav-group">
+        <div class="nav-title">Chat History</div>
+        <div id="history" class="files"></div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Repos</div>
+        <div id="repos" class="files"></div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Repo Files</div>
+        <div id="files" class="files"></div>
+      </div>
+    </aside>
 
-    <section class="repo-bar">
-      <input id="repoUrl" type="text" placeholder="https://github.com/user/repo.git">
-      <button class="pill" onclick="cloneRepo()">Clone</button>
-      <button class="pill" onclick="pullRepo()">Pull</button>
-      <input id="commitMsg" type="text" placeholder="Commit message">
-      <button class="pill" onclick="pushRepo()">Commit + Push</button>
-      <button class="pill ghost" onclick="saveFile()">Save File</button>
-    </section>
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="title">
+            <span class="title-main">Batao project ke bare mein</span>
+            <span class="title-sub">codez-ai-main</span>
+          </div>
+          <div class="status" id="authStatus">Guest</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="pill" onclick="runAI('explain')">Explain</button>
+          <button class="pill" onclick="runAI('fix')">Fix Bug</button>
+          <button class="pill" onclick="runAI('optimize')">Optimize</button>
+          <button class="pill ghost" onclick="runCode()">Run</button>
+          <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
+          <button class="pill ghost" onclick="openSettings()">Settings</button>
+          <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
+          <button class="pill" id="googleBtn" onclick="loginGoogle()">Google Login</button>
+        </div>
+      </header>
 
-    <section class="analyze-bar">
-      <input id="analyzeUrl" type="text" placeholder="https://example.com">
-      <button class="pill" onclick="analyzeUrl()">Analyze URL</button>
-      <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
-    </section>
-<section class="workbench">
-      <div id="editorPlaceholder" class="editor-placeholder">Editor hidden. Click Editor to open.</div>
-<<<<<<< HEAD
-<div class="ai-tag compact" id="modelTag">deepseek</div>
-        </div>
-        <div class="attach-row">          <div class="attach-left">
-          <label class="icon-btn" title="Add File">
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h10l4 4v12H4z"/><path d="M14 4v4h4"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>
-            </span>
-            <span class="icon-label">Add File</span>
-            <input type="file" id="aiFile" multiple>
-          </label>
-          <label class="icon-btn" title="Add Folder">
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
-            </span>
-            <span class="icon-label">Add Folder</span>
-            <input type="file" id="aiFolder" webkitdirectory multiple>
-          </label>
-          <div class="attach-info" id="attachInfo">No attachments</div>
-        </div>\r\n          <div class="attach-right">            <div class="ai-tag compact" id="modelTag">deepseek</div>\r\n          </div>\r\n        </div>\r\n        <div id="result" class="chat"></div>
-=======
-<div class="ai-tag compact" id="modelTag">deepseek</div>
-        </div>
-        <div class="attach-row">
-          <div class="attach-left">
-            <label class="icon-btn" title="Add File">
-              <span class="icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h10l4 4v12H4z"/><path d="M14 4v4h4"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>
-              </span>
-              <span class="icon-label">Add File</span>
+      <section class="repo-bar">
+        <input id="repoUrl" type="text" placeholder="https://github.com/user/repo.git">
+        <button class="pill" onclick="cloneRepo()">Clone</button>
+        <button class="pill" onclick="pullRepo()">Pull</button>
+        <input id="commitMsg" type="text" placeholder="Commit message">
+        <button class="pill" onclick="pushRepo()">Commit + Push</button>
+        <button class="pill ghost" onclick="saveFile()">Save File</button>
+      </section>
+
+      <section class="analyze-bar">
+        <input id="analyzeUrl" type="text" placeholder="https://example.com">
+        <button class="pill" onclick="analyzeUrl()">Analyze URL</button>
+        <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
+      </section>
+
+      <section class="workbench">
+        <div id="editor" class="editor"></div>
+        <div class="ai">
+          <div class="ai-header">
+            <div class="ai-title">AI Chat</div>
+            <div class="ai-tag" id="modelTag">model: deepseek</div>
+          </div>
+          <div class="attach-row">
+            <label class="file-btn small">
+              Add File
               <input type="file" id="aiFile" multiple>
             </label>
-            <label class="icon-btn" title="Add Folder">
-              <span class="icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
-              </span>
-              <span class="icon-label">Add Folder</span>
+            <label class="file-btn small">
+              Add Folder
               <input type="file" id="aiFolder" webkitdirectory multiple>
             </label>
             <div class="attach-info" id="attachInfo">No attachments</div>
           </div>
+          <div id="result" class="chat"></div>
         </div>
-        <div id="result" class="chat"></div>
->>>>>>> 2a87943 (update)
-      </div>
       </section>
 
-    <section class="analysis">
-      <div class="analysis-title">URL Analysis</div>
-      <pre id="analysisResult" class="analysis-result">No analysis yet.</pre>
-    </section>
-
-</main>
-</div>
-<div id="editorDrawer" class="editor-drawer" aria-hidden="true">
-  <div class="terminal-head">
-    <div class="terminal-title">Editor</div>
-    <button class="pill ghost" onclick="toggleEditor()">Close</button>
+      <section class="analysis">
+        <div class="analysis-title">URL Analysis</div>
+        <pre id="analysisResult" class="analysis-result">No analysis yet.</pre>
+      </section>
+    </main>
   </div>
-  <div id="editor" class="editor"></div>
-</div>
 
-
-
-<div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
-  <div class="terminal-head">
-    <div class="terminal-title">Terminal</div>
-    <button class="pill ghost" onclick="toggleTerminal()">Close</button>
+  <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
+    <div class="terminal-head">
+      <div class="terminal-title">Terminal</div>
+      <button class="pill ghost" onclick="toggleTerminal()">Close</button>
+    </div>
+    <div id="terminal" class="terminal">Terminal ready...</div>
   </div>
-  <div id="terminal" class="terminal">Terminal ready...</div>
-</div>
-<script>
-  (function(){
-    const el = document.getElementById("bootError");
-    function show(msg){
-      if(!el) return;
-      el.hidden = false;
-      el.textContent = msg;
-    }
-    window.addEventListener("error", function(e){
-      if(e && e.target && e.target.tagName === "SCRIPT"){
-        show("Script failed to load: " + (e.target.src || "unknown"));
-      }else{
-        show("App error: " + (e.message || e.type));
-      }
-    });
-  })();
-</script>
-<script src="app.js"></script>
+
+  <script src="app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
