@@ -272,7 +272,7 @@ async function loadHistory(){
       time.textContent = formatRelativeTime(item.createdAt);
       const del = document.createElement("button");
       del.className = "thread-delete";
-      del.textContent = "�";
+      del.textContent = "×";
       del.title = "Delete";
       del.onclick = (e) => {
         e.stopPropagation();
@@ -650,22 +650,31 @@ async function sendChatMessage(){
   const message = input.value.trim();
   if(!message) return;
   input.value = "";
+
   appendChatMessage("user", message);
+
   const placeholder = appendChatMessage("ai", "Thinking...");
+
   try{
-    const response=await fetch(
+    const response = await fetch(
       apiUrl("/ai"),
       {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         credentials:"include",
-        body:JSON.stringify({prompt: message})
+        body: JSON.stringify({ 
+          prompt: message,
+          attachments: attachments   // ← attachments array भेजो
+        })
       }
     );
-    const data=await response.json();
-    if(placeholder) placeholder.textContent = data.result || "No response";
+
+    const data = await response.json();
+    if(placeholder) {
+      placeholder.textContent = data.result || data.error || "No response";
+    }
   }catch(e){
-    if(placeholder) placeholder.textContent = "Error: " + e;
+    if(placeholder) placeholder.textContent = "Error: " + e.message;
   }
 }
 function bindChatInput(){
