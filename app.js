@@ -170,8 +170,15 @@ async function addAttachments(files){
 }
 
 function updateAttachInfo(){
-
+  const el = document.getElementById("attachInfo");
+  if(!el) return;
+  if(attachments.length===0){
+    el.textContent = "No attachments";
+  }else{
+    el.textContent = attachments.length + " file(s) attached";
+  }
 }
+
 
 function setAnalysisVisible(show){
   const panel = document.querySelector(".analysis");
@@ -197,8 +204,7 @@ function toggleEditorPanel(){
     window.editor.layout();
   }
 }
-}
-}function initAnalysisPanel(){
+function initAnalysisPanel(){
   const input = document.getElementById("actionUrl");
   const toggle = () => {
     const hasUrl = !!(input && input.value.trim());
@@ -574,5 +580,7 @@ function bindChatInput(){
     }
   });
 }
+
+
 
 
