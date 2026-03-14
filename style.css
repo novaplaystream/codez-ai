@@ -627,3 +627,20 @@ body{
   }
 }
 
+
+/* Centered main column */
+.codex-ui .main{
+  padding:0 16px;
+}
+.codex-ui .topbar,
+.codex-ui .repo-bar,
+.codex-ui .analyze-bar,
+.codex-ui .workbench{
+  width:min(1100px, 100%);
+  margin:0 auto;
+}
+.codex-ui .workbench{
+  height:calc(100vh - 150px);
+  grid-template-rows:minmax(280px, 1fr) minmax(220px, 0.9fr);
+}
+
