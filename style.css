@@ -141,3 +141,8 @@ body{
 
 .workbench.editor-hidden{grid-template-columns:1fr;}
 
+
+.workbench.editor-hidden{grid-template-columns:1fr !important;}
+.workbench.editor-hidden .editor{display:none !important;}
+.editor.hidden{display:none !important;}
+

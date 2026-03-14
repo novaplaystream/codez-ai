@@ -26,6 +26,7 @@ function initEditorWithMonaco(){
   bootstrapAuth();
   bindAttachmentInputs();
   initAnalysisPanel();
+  setEditorVisible(false);
 }
 
 function initFallbackEditor(){
@@ -45,6 +46,7 @@ function initFallbackEditor(){
   bootstrapAuth();
   bindAttachmentInputs();
   initAnalysisPanel();
+  setEditorVisible(false);
 }
 
 if(window.require && window.require.config){
@@ -176,16 +178,24 @@ function setAnalysisVisible(show){
 }
 
 
-function toggleEditorPanel(){
+
+function setEditorVisible(show){
   const editorEl = document.getElementById("editor");
   const workbench = document.querySelector(".workbench");
   if(!editorEl || !workbench) return;
-  const willShow = editorEl.classList.contains("hidden");
-  editorEl.classList.toggle("hidden", !willShow);
-  workbench.classList.toggle("editor-hidden", !willShow);
+  editorEl.classList.toggle("hidden", !show);
+  editorEl.hidden = !show;
+  workbench.classList.toggle("editor-hidden", !show);
+}
+function toggleEditorPanel(){
+  const editorEl = document.getElementById("editor");
+  const willShow = editorEl && editorEl.classList.contains("hidden");
+  setEditorVisible(!!willShow);
   if(willShow && window.editor && typeof window.editor.layout === "function"){
     window.editor.layout();
   }
+}
+}
 }function initAnalysisPanel(){
   const input = document.getElementById("actionUrl");
   const toggle = () => {
@@ -502,6 +512,11 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+
+
+
+
+
 
 
 
