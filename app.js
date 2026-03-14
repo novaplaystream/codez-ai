@@ -422,3 +422,16 @@ async function pushRepo(){
 
 
 
+
+// Expose handlers for inline HTML onclick
+window.runAI = runAI;
+window.runCode = runCode;
+window.loginGithub = loginGithub;
+window.loginGoogle = loginGoogle;
+window.logoutGithub = logoutGithub;
+window.cloneRepo = cloneRepo;
+window.pullRepo = pullRepo;
+window.pushRepo = pushRepo;
+window.saveFile = saveFile;
+window.analyzeUrl = analyzeUrl;
+
