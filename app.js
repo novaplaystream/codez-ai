@@ -421,11 +421,32 @@ window.pullRepo = pullRepo;
 window.pushRepo = pushRepo;
 window.saveFile = saveFile;
 window.analyzeUrl = analyzeUrl;
+window.toggleTerminal = toggleTerminal;
 
 
 
 
 
 
+
+
+
+function toggleTerminal(){
+  const drawer = document.getElementById("terminalDrawer");
+  if(!drawer) return;
+  const isOpen = drawer.classList.contains("open");
+  drawer.classList.toggle("open", !isOpen);
+  drawer.setAttribute("aria-hidden", isOpen ? "true" : "false");
+}
+
+window.addEventListener("keydown", (e) => {
+  if(e.key === "Escape"){
+    const drawer = document.getElementById("terminalDrawer");
+    if(drawer && drawer.classList.contains("open")){
+      drawer.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+    }
+  }
+});
 
 

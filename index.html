@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
 </head>
-<body>
+<body class="codex-ui">
 <div id="bootError" class="boot-error" hidden></div>
 <div class="app">
   <aside class="nav">
@@ -47,6 +47,7 @@
         <button class="pill" onclick="runAI('fix')">Fix Bug</button>
         <button class="pill" onclick="runAI('optimize')">Optimize</button>
         <button class="pill ghost" onclick="runCode()">Run</button>
+        <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
         <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
         <button class="pill" id="googleBtn" onclick="loginGoogle()">Google Login</button>
       </div>
@@ -66,13 +67,7 @@
       <button class="pill" onclick="analyzeUrl()">Analyze URL</button>
       <div class="analyze-status" id="analyzeStatus">Static analyzer ready</div>
     </section>
-
-    <section class="log-pane">
-      <div class="log-title">Run Log</div>
-      <div id="log" class="log-feed"></div>
-    </section>
-
-    <section class="workbench">
+<section class="workbench">
       <div id="editor" class="editor"></div>
       <div class="ai">
         <div class="ai-header">
@@ -99,17 +94,16 @@
       <pre id="analysisResult" class="analysis-result">No analysis yet.</pre>
     </section>
 
-    <div id="terminal" class="terminal">Terminal ready...</div>
+</main>
+</div>
 
-    <section class="composer">
-      <textarea id="userNote" placeholder="Ask for follow-up changes..."></textarea>
-      <div class="composer-actions">
-        <button class="pill" onclick="runAI('explain')">Send</button>
-      </div>
-    </section>
-  </main>
+<div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
+  <div class="terminal-head">
+    <div class="terminal-title">Terminal</div>
+    <button class="pill ghost" onclick="toggleTerminal()">Close</button>
+  </div>
+  <div id="terminal" class="terminal">Terminal ready...</div>
 </div>
-
 <script>
   (function(){
     const el = document.getElementById("bootError");
@@ -130,6 +124,14 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
