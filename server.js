@@ -492,8 +492,15 @@ app.post("/ai", async (req, res) => {
 });
 
 app.get("/api/chats", requireAuth, async (req, res) => {
-  const chats = await Chat.find({ userId: req.user.id }).sort({ createdAt: -1 }).limit(50);
+  const chats = await Chat.find({ userId: req.user.id }).sort({ createdAt: -1 });
   res.json(chats);
+});
+
+app.delete("/api/chats/:id", requireAuth, async (req, res) => {
+  const id = req.params.id;
+  if(!id) return res.status(400).json({ error: "Missing id" });
+  await Chat.deleteOne({ _id: id, userId: req.user.id });
+  res.json({ ok: true });
 });
 
 app.post("/api/logs", requireAuth, async (req, res) => {
@@ -589,6 +596,8 @@ app.post("/api/repos/:repoId/push", requireAuth, async (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Codez AI API running on ${PORT}`);
 });
+
+
 
 
 

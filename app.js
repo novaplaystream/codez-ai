@@ -213,6 +213,24 @@ function initAnalysisPanel(){
   if(input) input.addEventListener("input", toggle);
   toggle();
 }
+function formatRelativeTime(ts){
+  const t = new Date(ts).getTime();
+  if(!t) return "";
+  const diff = Date.now() - t;
+  const mins = Math.floor(diff / 60000);
+  if(mins < 60) return mins + "m";
+  const hrs = Math.floor(mins / 60);
+  if(hrs < 24) return hrs + "h";
+  const days = Math.floor(hrs / 24);
+  return days + "d";
+}
+
+async function deleteChat(id){
+  if(!id) return;
+  if(!confirm("Delete this thread?")) return;
+  await fetch(apiUrl(`/api/chats/${id}`), { method: "DELETE", credentials: "include" });
+  await loadHistory();
+}
 async function loadHistory(){
   const el = document.getElementById("history");
   if(!el) return;
@@ -220,18 +238,43 @@ async function loadHistory(){
   try{
     const res = await fetch(apiUrl("/api/chats"), { credentials:"include" });
     const chats = await res.json();
+    if(!Array.isArray(chats) || chats.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "thread-empty";
+      empty.textContent = "No threads";
+      el.appendChild(empty);
+      return;
+    }
     chats.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "nav-item";
-      div.textContent = (item.prompt || "").slice(0, 40) || "(empty)";
-      div.onclick = () => {
-        document.getElementById("result").textContent = item.response || "";
+      const row = document.createElement("div");
+      row.className = "thread-item";
+      const title = document.createElement("div");
+      title.className = "thread-title";
+      title.textContent = (item.prompt || "(empty)").slice(0, 60);
+      const time = document.createElement("div");
+      time.className = "thread-time";
+      time.textContent = formatRelativeTime(item.createdAt);
+      const del = document.createElement("button");
+      del.className = "thread-delete";
+      del.textContent = "×";
+      del.title = "Delete";
+      del.onclick = (e) => {
+        e.stopPropagation();
+        deleteChat(item._id);
       };
-      el.appendChild(div);
+      row.onclick = () => {
+        const resEl = document.getElementById("result");
+        if(resEl) resEl.textContent = item.response || "";
+      };
+      row.appendChild(title);
+      row.appendChild(time);
+      row.appendChild(del);
+      el.appendChild(row);
     });
   }catch(e){
     el.textContent = "Failed to load";
   }
+}
 }
 
 async function loadRepos(){
@@ -580,6 +623,7 @@ function bindChatInput(){
     }
   });
 }
+
 
 
 

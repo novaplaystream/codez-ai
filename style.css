@@ -160,3 +160,27 @@ body{
 .chat-msg{background:#121314;border:1px solid #222326;border-radius:10px;padding:8px 10px;white-space:pre-wrap;}
 .chat-msg.ai{background:#141516;border:1px solid #202225;border-radius:12px;padding:12px;display:flex;flex-direction:column;min-height:320px;min-width:0;height:100%;overflow:hidden;}
 
+
+.nav{display:flex;flex-direction:column;gap:18px;}
+.nav-top{display:flex;flex-direction:column;gap:8px;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text);cursor:pointer;font-size:13px;text-align:left;}
+.nav-link:hover{background:#1a1b1c;border-color:#2a2b2d;}
+.nav-link svg{width:14px;height:14px;}
+.nav-section{display:flex;flex-direction:column;gap:10px;}
+.nav-section-title{font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:0 8px;}
+.thread-group{display:flex;flex-direction:column;gap:8px;}
+.thread-group-head{display:flex;align-items:center;justify-content:space-between;padding:0 6px;}
+.thread-group-left{display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px;}
+.thread-group-left svg{width:14px;height:14px;}
+.thread-actions{display:flex;gap:6px;}
+.icon-btn.mini{width:24px;height:24px;border-radius:8px;}
+.thread-list{display:flex;flex-direction:column;gap:6px;}
+.thread-item{position:relative;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;padding:8px 10px;border-radius:10px;background:#171819;border:1px solid #232425;cursor:pointer;}
+.thread-item:hover{background:#1c1d1f;border-color:#2a2b2d;}
+.thread-title{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.thread-time{font-size:10px;color:var(--muted);}
+.thread-delete{position:absolute;right:6px;top:6px;border:none;background:transparent;color:#a3a3a3;cursor:pointer;font-size:14px;display:none;}
+.thread-item:hover .thread-delete{display:block;}
+.thread-empty{font-size:12px;color:var(--muted);padding:6px 10px;}
+.nav-footer{margin-top:auto;}
+

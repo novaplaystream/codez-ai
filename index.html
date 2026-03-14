@@ -12,7 +12,33 @@
       <path d="M7 9h10M7 13h6"></path>
       <path d="M14.5 15.5l4 4"></path>
     </symbol>
-    <symbol id="i-help" viewBox="0 0 24 24">
+        <symbol id="i-newthread" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+      <path d="M12 8v8M8 12h8"></path>
+    </symbol>
+    <symbol id="i-automations" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8"></circle>
+      <path d="M12 8v5l3 2"></path>
+    </symbol>
+    <symbol id="i-skills" viewBox="0 0 24 24">
+      <rect x="5" y="5" width="5" height="5" rx="1"></rect>
+      <rect x="14" y="5" width="5" height="5" rx="1"></rect>
+      <rect x="5" y="14" width="5" height="5" rx="1"></rect>
+      <rect x="14" y="14" width="5" height="5" rx="1"></rect>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M4 8h6l2 2h8v8H4z"></path>
+    </symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24">
+      <path d="M4 6h16M7 12h10M10 18h4"></path>
+    </symbol>
+    <symbol id="i-add" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14"></path>
+    </symbol>
+    <symbol id="i-thread" viewBox="0 0 24 24">
+      <rect x="4" y="5" width="16" height="12" rx="3"></rect>
+      <path d="M8 20l3-3"></path>
+    </symbol><symbol id="i-help" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="9"></circle>
       <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"></path>
       <circle cx="12" cy="17.5" r="0.7" fill="currentColor" stroke="none"></circle>
@@ -76,28 +102,48 @@
     </symbol>
   </svg>
   <div class="app">
-    <aside class="nav">
-      <div class="nav-group">
-        <div class="nav-title">New Thread</div>
-        <div class="nav-item">Automations</div>
-        <div class="nav-item">Skills</div>
+        <aside class="nav">
+      <div class="nav-top">
+        <button class="nav-link" title="New thread">
+          <svg aria-hidden="true"><use href="#i-newthread"></use></svg>
+          <span>New thread</span>
+        </button>
+        <button class="nav-link">
+          <svg aria-hidden="true"><use href="#i-automations"></use></svg>
+          <span>Automations</span>
+        </button>
+        <button class="nav-link">
+          <svg aria-hidden="true"><use href="#i-skills"></use></svg>
+          <span>Skills</span>
+        </button>
       </div>
-      <div class="nav-group">
-        <div class="nav-title">Threads</div>
-        <div class="nav-item active">Batao project ke bare mein</div>
-        <div class="nav-item">Playground 3</div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Threads</div>
+        <div class="thread-group">
+          <div class="thread-group-head">
+            <div class="thread-group-left">
+              <svg aria-hidden="true"><use href="#i-folder"></use></svg>
+              <span>codez-ai-main</span>
+            </div>
+            <div class="thread-actions">
+              <button class="icon-btn mini" title="New thread">
+                <svg aria-hidden="true"><use href="#i-thread"></use></svg>
+              </button>
+              <button class="icon-btn mini" title="Filter">
+                <svg aria-hidden="true"><use href="#i-filter"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div id="history" class="thread-list"></div>
+        </div>
       </div>
-      <div class="nav-group">
-        <div class="nav-title">Chat History</div>
-        <div id="history" class="files"></div>
-      </div>
-      <div class="nav-group">
-        <div class="nav-title">Repos</div>
-        <div id="repos" class="files"></div>
-      </div>
-      <div class="nav-group">
-        <div class="nav-title">Repo Files</div>
-        <div id="files" class="files"></div>
+
+      <div class="nav-footer">
+        <button class="nav-link">
+          <svg aria-hidden="true"><use href="#i-add"></use></svg>
+          <span>Add project</span>
+        </button>
       </div>
     </aside>
 
@@ -175,6 +221,8 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
 
