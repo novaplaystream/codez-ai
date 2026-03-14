@@ -84,7 +84,7 @@ async function callGroqAI(prompt, attachments = []) {
         },
         { role: "user", content: fullPrompt }
       ],
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       temperature: 0.35,
       max_tokens: 4096,
       top_p: 0.92
