@@ -528,14 +528,26 @@ window.analyzeUrlUnified = analyzeUrlUnified;
 
 
 
+
+function appendChatMessage(role, text){
+  const log = document.getElementById("chatLog") || document.getElementById("result");
+  if(!log) return null;
+  const row = document.createElement("div");
+  row.className = "chat-msg " + role;
+  row.textContent = text;
+  log.appendChild(row);
+  const scroller = log.closest(".chat") || log;
+  scroller.scrollTop = scroller.scrollHeight;
+  return row;
+}
 async function sendChatMessage(){
   const input = document.getElementById("chatInput");
-  const out = document.getElementById("result");
-  if(!input || !out) return;
+  if(!input) return;
   const message = input.value.trim();
   if(!message) return;
   input.value = "";
-  out.textContent = `You: ${message}\n\nAI: Thinking...`;
+  appendChatMessage("user", message);
+  const placeholder = appendChatMessage("ai", "Thinking...");
   try{
     const response=await fetch(
       apiUrl("/ai"),
@@ -547,12 +559,11 @@ async function sendChatMessage(){
       }
     );
     const data=await response.json();
-    out.textContent = `You: ${message}\n\nAI: ${data.result || "No response"}`;
+    if(placeholder) placeholder.textContent = data.result || "No response";
   }catch(e){
-    out.textContent = `You: ${message}\n\nAI: Error: ${e}`;
+    if(placeholder) placeholder.textContent = "Error: " + e;
   }
 }
-
 function bindChatInput(){
   const input = document.getElementById("chatInput");
   if(!input) return;
@@ -563,3 +574,5 @@ function bindChatInput(){
     }
   });
 }
+
+
