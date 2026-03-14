@@ -717,3 +717,12 @@ body{
   padding:3px 6px;
 }
 
+
+
+.icon-btn{
+  font-size:0;
+}
+.icon-btn svg{
+  display:block;
+}
+

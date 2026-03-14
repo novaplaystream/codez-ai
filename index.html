@@ -46,7 +46,8 @@
         <button class="pill" onclick="runAI('explain')">Explain</button>
         <button class="pill" onclick="runAI('fix')">Fix Bug</button>
         <button class="pill" onclick="runAI('optimize')">Optimize</button>
-        <button class="pill ghost" onclick="toggleEditor()">Editor</button>`r`n        <button class="pill ghost" onclick="runCode()">Run</button>
+        <button class="pill ghost" onclick="toggleEditor()">Editor</button>
+        <button class="pill ghost" onclick="runCode()">Run</button>
         <button class="pill ghost" onclick="toggleTerminal()">Terminal</button>
         <button class="pill ghost" onclick="openSettings()">Settings</button>
         <button class="pill" id="loginBtn" onclick="loginGithub()">GitHub Login</button>
@@ -76,8 +77,20 @@
           <div class="ai-tag compact" id="modelTag">deepseek</div>
         </div>
         <div class="attach-row">
-          <label class="icon-btn" title="Add File">\n            <span class="icon" aria-hidden="true">\n              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h10l4 4v12H4z"/><path d="M14 4v4h4"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>\n            </span>\n            <span class="icon-label">Add File</span>\n            <input type="file" id="aiFile" multiple>\n          </label>
-          <label class="icon-btn" title="Add Folder">\n            <span class="icon" aria-hidden="true">\n              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>\n            </span>\n            <span class="icon-label">Add Folder</span>\n            <input type="file" id="aiFolder" webkitdirectory multiple>\n          </label>
+          <label class="icon-btn" title="Add File">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h10l4 4v12H4z"/><path d="M14 4v4h4"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>
+            </span>
+            <span class="icon-label">Add File</span>
+            <input type="file" id="aiFile" multiple>
+          </label>
+          <label class="icon-btn" title="Add Folder">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2"/></svg>
+            </span>
+            <span class="icon-label">Add Folder</span>
+            <input type="file" id="aiFolder" webkitdirectory multiple>
+          </label>
           <div class="attach-info" id="attachInfo">No attachments</div>
         </div>
         <div id="result" class="chat"></div>
@@ -90,7 +103,15 @@
     </section>
 
 </main>
-</div>`r`n<div id="editorDrawer" class="editor-drawer" aria-hidden="true">`r`n  <div class="terminal-head">`r`n    <div class="terminal-title">Editor</div>`r`n    <button class="pill ghost" onclick="toggleEditor()">Close</button>`r`n  </div>`r`n  <div id="editor" class="editor"></div>`r`n</div>`r`n
+</div>
+<div id="editorDrawer" class="editor-drawer" aria-hidden="true">
+  <div class="terminal-head">
+    <div class="terminal-title">Editor</div>
+    <button class="pill ghost" onclick="toggleEditor()">Close</button>
+  </div>
+  <div id="editor" class="editor"></div>
+</div>
+
 
 <div id="terminalDrawer" class="terminal-drawer" aria-hidden="true">
   <div class="terminal-head">
@@ -119,6 +140,9 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+
 
 
 
