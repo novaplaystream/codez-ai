@@ -26,6 +26,7 @@ function initEditorWithMonaco(){
   bootstrapAuth();
   bindAttachmentInputs();
   initAnalysisPanel();
+  bindChatInput();
   setEditorVisible(false);
 }
 
@@ -46,6 +47,7 @@ function initFallbackEditor(){
   bootstrapAuth();
   bindAttachmentInputs();
   initAnalysisPanel();
+  bindChatInput();
   setEditorVisible(false);
 }
 
@@ -525,3 +527,39 @@ window.analyzeUrlUnified = analyzeUrlUnified;
 
 
 
+
+async function sendChatMessage(){
+  const input = document.getElementById("chatInput");
+  const out = document.getElementById("result");
+  if(!input || !out) return;
+  const message = input.value.trim();
+  if(!message) return;
+  input.value = "";
+  out.textContent = `You: ${message}\n\nAI: Thinking...`;
+  try{
+    const response=await fetch(
+      apiUrl("/ai"),
+      {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        credentials:"include",
+        body:JSON.stringify({prompt: message})
+      }
+    );
+    const data=await response.json();
+    out.textContent = `You: ${message}\n\nAI: ${data.result || "No response"}`;
+  }catch(e){
+    out.textContent = `You: ${message}\n\nAI: Error: ${e}`;
+  }
+}
+
+function bindChatInput(){
+  const input = document.getElementById("chatInput");
+  if(!input) return;
+  input.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){
+      e.preventDefault();
+      sendChatMessage();
+    }
+  });
+}

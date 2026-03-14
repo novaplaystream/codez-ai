@@ -149,3 +149,9 @@ body{
 
 .attach-row .ai-tag{margin-left:auto;}
 
+
+.chat-input{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #202225;border-radius:14px;background:#0f1011;}
+.chat-input input{flex:1;background:transparent;border:none;color:#e6e6e6;font-size:12px;outline:none;}
+.chat-send{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);cursor:pointer;color:#e6e6e6;}
+.chat-send svg{width:16px;height:16px;fill:currentColor;stroke:none;}
+

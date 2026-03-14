@@ -147,7 +147,12 @@
             <div class="attach-info" id="attachInfo">No attachments</div>
             <div class="ai-tag" id="modelTag">model: deepseek</div>
           </div>
-          <div id="result" class="chat"></div>
+          <div class="chat-input">
+            <input id="chatInput" type="text" placeholder="Ask for follow-up changes" />
+            <button class="chat-send" title="Send" onclick="sendChatMessage()">
+              <svg aria-hidden="true"><use href="#i-play"></use></svg>
+            </button>
+          </div>          <div id="result" class="chat"></div>
         </div>
       </section>
 
@@ -169,6 +174,7 @@
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
