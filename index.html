@@ -183,14 +183,14 @@
         <div id="editor" class="editor hidden" hidden></div>
         <div class="ai">
           <div class="attach-row">
-            <label class="icon-btn" title="Add File">
+            <button class="icon-btn" title="Add File" onclick="triggerFileInput('aiFile')">
               <svg aria-hidden="true"><use href="#i-file-plus"></use></svg>
-              <input type="file" id="aiFile" multiple>
-            </label>
-            <label class="icon-btn" title="Add Folder">
+            </button>
+            <button class="icon-btn" title="Add Folder" onclick="triggerFileInput('aiFolder')">
               <svg aria-hidden="true"><use href="#i-folder-plus"></use></svg>
-              <input type="file" id="aiFolder" webkitdirectory multiple>
-            </label>
+            </button>
+            <input type="file" id="aiFile" multiple class="hidden-input">
+            <input type="file" id="aiFolder" webkitdirectory multiple class="hidden-input">
             <div class="attach-info" id="attachInfo">No attachments</div>
             <div class="ai-tag" id="modelTag">model: deepseek</div>
           </div>
@@ -221,6 +221,7 @@
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

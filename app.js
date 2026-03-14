@@ -87,6 +87,11 @@ function addLog(text){
   }).catch(()=>{});
 }
 
+
+function triggerFileInput(id){
+  const el = document.getElementById(id);
+  if(el) el.click();
+}
 function setIconButton(btn, title){
   if(!btn) return;
   btn.setAttribute("title", title);
@@ -561,6 +566,7 @@ window.toggleTerminal = toggleTerminal;
 window.openSettings = openSettings;
 window.cloneRepoUnified = cloneRepoUnified;
 window.analyzeUrlUnified = analyzeUrlUnified;
+window.triggerFileInput = triggerFileInput;
 window.toggleEditorPanel = toggleEditorPanel;
 window.sendChatMessage = sendChatMessage;
 
@@ -623,6 +629,7 @@ function bindChatInput(){
     }
   });
 }
+
 
 
 

@@ -184,3 +184,6 @@ body{
 .thread-empty{font-size:12px;color:var(--muted);padding:6px 10px;}
 .nav-footer{margin-top:auto;}
 
+
+.hidden-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
+
