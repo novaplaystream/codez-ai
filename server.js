@@ -1,3 +1,8 @@
+app.get('/', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'index.html'));
+});
+
+
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
