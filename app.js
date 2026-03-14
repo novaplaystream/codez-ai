@@ -1,4 +1,4 @@
-const API_BASE = (window.API_BASE)
+ï»¿const API_BASE = (window.API_BASE)
   || (location.hostname.endsWith("github.io") ? "https://codez-ai-production.up.railway.app" : "");
 
 function apiUrl(path){
@@ -173,35 +173,54 @@ function bindAttachmentInputs(){
 }
 
 async function addAttachments(files){
-  const maxSize = 200000;
+  const maxSize = 2000000;
   for(const file of files){
     if(file.size > maxSize) continue;
-    const content = await file.text();
+    let content = "";
+    let isImage = false;
+    if(file.type && file.type.startsWith("image/")){
+      const buf = await file.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let binary = "";
+      for(let i=0;i<bytes.length;i++){ binary += String.fromCharCode(bytes[i]); }
+      const base64 = btoa(binary);
+      content = `data:${file.type};base64,${base64}`;
+      isImage = true;
+    }else{
+      content = await file.text();
+    }
     attachments.push({
       name: file.webkitRelativePath || file.name,
-      content
+      content,
+      isImage
     });
-  }
-  updateAttachInfo();
+  }\n  updateAttachInfo();
 }
 
+
+function buildAttachmentText(){
+  if(attachments.length===0) return "";
+  return "\n\nAttached files:\n" + attachments.map(a => {
+    if(a.isImage){
+      return `--- ${a.name} (image, base64) ---\n${a.content}`;
+    }
+    return `--- ${a.name} ---\n${a.content}`;
+  }).join("\n\n");
+}
 function updateAttachInfo(){
   const el = document.getElementById("attachInfo");
   if(!el) return;
   if(attachments.length===0){
     el.textContent = "No attachments";
   }else{
-    el.textContent = attachments.length + " file(s) attached";
+    const imgCount = attachments.filter(a => a.isImage).length;
+    const txtCount = attachments.length - imgCount;
+    const parts = [];
+    if(txtCount) parts.push(txtCount + " file(s)");
+    if(imgCount) parts.push(imgCount + " image(s)");
+    el.textContent = parts.join(", ") + " attached";
   }
 }
-
-
-function setAnalysisVisible(show){
-  const panel = document.querySelector(".analysis");
-  if(!panel) return;
-  panel.classList.toggle("hidden", !show);
-}
-
 
 
 function setEditorVisible(show){
@@ -272,7 +291,7 @@ async function loadHistory(){
       time.textContent = formatRelativeTime(item.createdAt);
       const del = document.createElement("button");
       del.className = "thread-delete";
-      del.textContent = "×";
+      del.textContent = "ï¿½";
       del.title = "Delete";
       del.onclick = (e) => {
         e.stopPropagation();
@@ -318,12 +337,7 @@ async function runAI(mode){
   const code=editor.getValue();
   const userNote=(document.getElementById("userNote") || {}).value || "";
 
-  let attachText = "";
-  if(attachments.length>0){
-    attachText = "\n\nAttached files:\n" + attachments.map(a => `--- ${a.name} ---\n${a.content}`).join("\n\n");
-  }
-
-  const prompt=mode+" this code:\n\n"+code+(userNote?"\n\nUser note:\n"+userNote:"")+attachText;
+  const prompt=mode+" this code:\n\n"+code+(userNote?"\n\nUser note:\n"+userNote:"")+buildAttachmentText();
 
   addLog("Sent request: "+mode);
   document.getElementById("result").textContent="Thinking...";
@@ -659,7 +673,7 @@ async function sendChatMessage(){
         method:"POST",
         headers:{"Content-Type":"application/json"},
         credentials:"include",
-        body:JSON.stringify({prompt: message})
+        body:JSON.stringify({prompt: message + buildAttachmentText()})
       }
     );
     const data=await response.json();
@@ -678,6 +692,10 @@ function bindChatInput(){
     }
   });
 }
+
+
+
+
 
 
 
