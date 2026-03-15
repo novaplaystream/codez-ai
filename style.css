@@ -204,3 +204,10 @@ body{
 .icon-only.show-label{padding-right:10px;}
 
 
+
+.project-card{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px dashed #262729;border-radius:10px;background:#101112;}
+.project-info{font-size:11px;color:var(--muted);padding:2px 4px;}
+.chat-input{flex-wrap:wrap;gap:6px;}
+.chat-input .icon-btn{height:30px;}
+.chat-input #chatInput{flex:1 1 200px;}
+

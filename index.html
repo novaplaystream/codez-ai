@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,6 +41,9 @@
       <path d="M14 2v6h6"></path>
       <path d="M12 12v6M9 15h6"></path>
     </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+    </symbol>
     <symbol id="i-play" viewBox="0 0 24 24">
       <path d="M8 5l11 7-11 7z"></path>
     </symbol>
@@ -52,19 +54,32 @@
       <path d="M13 15v4a2 2 0 0 0 2 2h6"></path>
     </symbol>
   </svg>
+
   <div class="app">
     <!-- Left Sidebar -->
     <nav class="nav">
       <div class="nav-top">
-        <button class="nav-link icon-only" onclick="startNewThread()" aria-label="New Conversation" data-label>
+        <button class="nav-link icon-only" onclick="startNewThread()" aria-label="New Thread" data-label>
           <svg><use href="#i-newthread"></use></svg>
-          <span class="btn-label">New Conversation</span>
+          <span class="btn-label">New Thread</span>
         </button>
       </div>
 
       <div class="nav-section">
-        <div class="nav-section-title">Conversations</div>
-        <div class="thread-group">
+        <div class="nav-section-title">Project</div>
+        <div class="project-card">
+          <label class="nav-link icon-only" for="projectFolder" aria-label="Add Project Folder" data-label>
+            <svg><use href="#i-folder"></use></svg>
+            <span class="btn-label">Add Project</span>
+          </label>
+          <input type="file" id="projectFolder" class="hidden-input" webkitdirectory directory multiple />
+          <div class="project-info" id="projectInfo">No project added</div>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Threads</div>
+        <div class="thread-group" id="threadGroup">
           <div class="thread-item active">
             <div class="thread-title">Batao project ke bare mein</div>
             <div class="thread-time">just now</div>
@@ -141,6 +156,18 @@
           </div>
 
           <div class="chat-input">
+            <label class="icon-btn icon-only" for="chatFile" aria-label="Attach File" data-label>
+              <svg><use href="#i-file-plus"></use></svg>
+              <span class="btn-label">File</span>
+            </label>
+            <input type="file" id="chatFile" class="hidden-input" multiple />
+
+            <label class="icon-btn icon-only" for="chatFolder" aria-label="Attach Folder" data-label>
+              <svg><use href="#i-folder"></use></svg>
+              <span class="btn-label">Folder</span>
+            </label>
+            <input type="file" id="chatFolder" class="hidden-input" webkitdirectory directory multiple />
+
             <input
               id="chatInput"
               type="text"
@@ -160,106 +187,4 @@
 
   <script src="app.js"></script>
 </body>
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Codez AI – Codex Style</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
-</head>
-<body>
-  <div class="app">
-    <!-- Left Sidebar -->
-    <nav class="nav">
-      <div class="nav-top">
-        <button class="nav-link" onclick="startNewThread()">
-          <svg><use href="#i-newthread"></use></svg> New Conversation
-        </button>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">Conversations</div>
-        <div class="thread-group">
-          <div class="thread-item active">
-            <div class="thread-title">Batao project ke bare mein</div>
-            <div class="thread-time">just now</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav-footer">
-        <div class="status" id="authStatus">Guest</div>
-        <button id="loginBtn" class="nav-link">GitHub Login</button>
-      </div>
-    </nav>
-
-    <!-- Main Area -->
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <div class="title">
-            <div class="title-main">Codez AI</div>
-            <div class="title-sub">Your AI coding partner</div>
-          </div>
-          <div class="status" id="modelTag">model: llama-3.3-70b</div>
-        </div>
-
-        <div class="topbar-actions">
-          <button class="icon-btn" title="Generate" onclick="runAI('generate')">Generate</button>
-          <button class="icon-btn" title="Explain" onclick="runAI('explain')">Explain</button>
-          <button class="icon-btn" title="Debug" onclick="runAI('debug')">Debug</button>
-          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')">Optimize</button>
-        </div>
-      </header>
-
-      <section class="unified-bar">
-        <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL" />
-        <button class="icon-btn" onclick="cloneRepoUnified()">Clone</button>
-        <input id="commitMsg" type="text" placeholder="Commit message" />
-        <button class="icon-btn" onclick="pushRepo()">Commit & Push</button>
-      </section>
-
-      <section class="workbench">
-        <div id="editor" class="editor"></div>
-
-        <div class="ai">
-          <div class="attach-row">
-            <label class="icon-btn" for="aiFile"><svg><use href="#i-file-plus"></use></svg></label>
-            <input type="file" id="aiFile" multiple class="hidden-input" />
-            <div class="attach-info" id="attachInfo">No attachments</div>
-            <div class="ai-tag">Groq Powered</div>
-          </div>
-
-          <div id="result" class="chat">
-            <div id="chatLog" class="chat-log"></div>
-          </div>
-
-    <div class="chat-input">
-  <input 
-    id="chatInput" 
-    type="text" 
-    placeholder="Ask anything – code generate karo, explain karo, fix karo..." 
-  />
-  <button 
-    class="chat-send" 
-    onclick="sendChatMessage()"   <!-- ← yeh line bilkul sahi honi chahiye -->
-  >
-    <svg aria-hidden="true"><use href="#i-play"></use></svg>
-  </button>
-</div>
-
-          
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script src="app.js"></script>
-</body>
->>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 </html>
