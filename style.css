@@ -245,7 +245,6 @@ body{
 .model-card{display:flex;flex-direction:column;gap:8px;padding:8px;border:1px dashed #262729;border-radius:10px;background:#101112;}
 .model-select{background:#0f1011;border:1px solid #242528;color:#e6e6e6;border-radius:8px;padding:6px 8px;font-size:11px;outline:none;}
 .model-select:focus{border-color:#3a3d44;}
-.model-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto;padding:4px;font-size:11px;color:#d2d6db;}
 .model-item{display:flex;flex-direction:column;gap:2px;padding:6px 8px;border-radius:8px;border:1px solid #242528;background:#0f1011;}
 .model-name{font-size:12px;color:#e6e6e6;}
 .model-meta{font-size:10px;color:var(--muted);}

@@ -216,9 +216,7 @@ function renderThreadMessages() {
 }
 
 async function refreshModels() {
-  const listEl = document.getElementById("modelList");
   const selectEl = document.getElementById("modelSelect");
-  if (listEl) listEl.textContent = "Loading models...";
 
   try {
     const res = await fetch(apiUrl("/models"));
@@ -226,11 +224,9 @@ async function refreshModels() {
     const data = await res.json();
     const models = Array.isArray(data.models) ? data.models : [];
 
-    if (listEl) listEl.innerHTML = "";
     if (selectEl) selectEl.innerHTML = "";
 
     if (models.length === 0) {
-      if (listEl) listEl.textContent = "No models available for this key.";
       if (selectEl) {
         const opt = document.createElement("option");
         opt.value = "";
@@ -259,24 +255,7 @@ async function refreshModels() {
       });
     }
 
-    models.forEach((m) => {
-      const item = document.createElement("div");
-      item.className = "model-item";
-      const name = document.createElement("div");
-      name.className = "model-name";
-      name.textContent = m.id || "unknown-model";
-      const meta = document.createElement("div");
-      meta.className = "model-meta";
-      const parts = [];
-      if (m.owned_by) parts.push(m.owned_by);
-      if (m.context_window) parts.push(`ctx ${m.context_window}`);
-      meta.textContent = parts.join(" • ");
-      item.appendChild(name);
-      if (meta.textContent) item.appendChild(meta);
-      listEl.appendChild(item);
-    });
   } catch (err) {
-    if (listEl) listEl.textContent = "Models load failed. Check server logs.";
     console.error("[ERROR] models fetch", err);
   }
 }

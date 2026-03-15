@@ -9,6 +9,7 @@ import { Groq } from "groq-sdk";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set("trust proxy", 1);
 
 // Logging
 app.use((req, res, next) => {
@@ -48,7 +49,8 @@ app.get("/auth/github", (req, res) => {
   if (!clientId || !clientSecret) {
     return res.status(400).send("GitHub OAuth not configured.");
   }
-  const redirectUri = `${req.protocol}://${req.get("host")}/auth/github/callback`;
+  const proto = req.get("x-forwarded-proto") || req.protocol;
+  const redirectUri = `${proto}://${req.get("host")}/auth/github/callback`;
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -64,7 +66,8 @@ app.get("/auth/github/callback", async (req, res) => {
     if (!code || !clientId || !clientSecret) {
       return res.redirect("/?auth=github&error=1");
     }
-    const redirectUri = `${req.protocol}://${req.get("host")}/auth/github/callback`;
+    const proto = req.get("x-forwarded-proto") || req.protocol;
+    const redirectUri = `${proto}://${req.get("host")}/auth/github/callback`;
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: {
@@ -95,7 +98,8 @@ app.get("/auth/google", (req, res) => {
   if (!clientId || !clientSecret) {
     return res.status(400).send("Google OAuth not configured.");
   }
-  const redirectUri = `${req.protocol}://${req.get("host")}/auth/google/callback`;
+  const proto = req.get("x-forwarded-proto") || req.protocol;
+  const redirectUri = `${proto}://${req.get("host")}/auth/google/callback`;
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -114,7 +118,8 @@ app.get("/auth/google/callback", async (req, res) => {
     if (!code || !clientId || !clientSecret) {
       return res.redirect("/?auth=google&error=1");
     }
-    const redirectUri = `${req.protocol}://${req.get("host")}/auth/google/callback`;
+    const proto = req.get("x-forwarded-proto") || req.protocol;
+    const redirectUri = `${proto}://${req.get("host")}/auth/google/callback`;
     const body = new URLSearchParams({
       code,
       client_id: clientId,
