@@ -61,18 +61,21 @@ async function sendChatMessage() {
   }
 
   const message = input.value.trim();
-  if (!message) return;
+  const hasFiles = selectedFiles.length > 0;
+  if (!message && !hasFiles) return;
 
   input.value = "";
-  appendChatMessage("user", message);
+  const userPreview = message || (hasFiles ? "[Image(s) attached]" : "");
+  appendChatMessage("user", userPreview);
 
   const placeholder = appendChatMessage("ai", "Soch raha hoon...");
 
   try {
+    const finalPrompt = message || "Please analyze the attached image(s).";
     let response;
     if (selectedFiles.length > 0) {
       const form = new FormData();
-      form.append("prompt", message);
+      form.append("prompt", finalPrompt);
       selectedFiles.forEach((file) => form.append("files", file, file.name));
       response = await fetch(apiUrl("/ai"), {
         method: "POST",
@@ -85,7 +88,7 @@ async function sendChatMessage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          prompt: message,
+          prompt: finalPrompt,
           attachments: attachments || []
         })
       });

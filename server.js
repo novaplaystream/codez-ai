@@ -30,7 +30,7 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 // Uploads (memory, small)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024, files: 10 }
+  limits: { fileSize: 5 * 1024 * 1024, files: 10 }
 });
 
 function bufferToSafeText(buffer) {
@@ -44,17 +44,34 @@ function bufferToSafeText(buffer) {
 // Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-async function callGroqAI(prompt, attachments = []) {
+async function callGroqAI(prompt, options = {}) {
+  const { textAttachments = [], imageAttachments = [] } = options;
   if (!process.env.GROQ_API_KEY) {
     return "GROQ_API_KEY missing. Please set it in .env and redeploy.";
   }
 
-  const attachmentNote = attachments.length
+  const attachmentNote = textAttachments.length
     ? "\n\nAttachments:\n" +
-      attachments
+      textAttachments
         .map((a) => `- ${a.name}${a.content ? "\n" + a.content : ""}`)
         .join("\n\n")
     : "";
+
+  const userContent = [
+    {
+      type: "text",
+      text: `${prompt}${attachmentNote}`.trim()
+    }
+  ];
+
+  if (imageAttachments.length) {
+    imageAttachments.forEach((img) => {
+      userContent.push({
+        type: "image_url",
+        image_url: { url: img.dataUrl }
+      });
+    });
+  }
 
   const messages = [
     {
@@ -64,12 +81,16 @@ async function callGroqAI(prompt, attachments = []) {
     },
     {
       role: "user",
-      content: `${prompt}${attachmentNote}`
+      content: userContent
     }
   ];
 
+  const model = imageAttachments.length
+    ? process.env.GROQ_VISION_MODEL || "llama-3.2-11b-vision-preview"
+    : process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile";
+
   const response = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model,
     messages,
     temperature: 0.4,
     max_tokens: 800
@@ -80,19 +101,35 @@ async function callGroqAI(prompt, attachments = []) {
 
 app.post("/ai", upload.array("files", 10), async (req, res) => {
   try {
-    const prompt = req.body?.prompt;
-    if (!prompt || !String(prompt).trim()) {
-      return res.status(400).json({ error: "Prompt missing" });
+    const files = Array.from(req.files || []);
+    const promptRaw = req.body?.prompt;
+    const hasPrompt = promptRaw && String(promptRaw).trim();
+    if (!hasPrompt && files.length === 0) {
+      return res.status(400).json({ error: "Prompt or image required" });
     }
 
-    const files = Array.from(req.files || []);
-    const attachments = files.map((file) => {
-      const text = bufferToSafeText(file.buffer);
-      const snippet = text ? text.slice(0, 4000) : "[binary or unsupported file]";
-      return { name: file.originalname, content: snippet };
+    const prompt = hasPrompt
+      ? String(promptRaw)
+      : "Please analyze the attached image(s).";
+
+    const textAttachments = [];
+    const imageAttachments = [];
+
+    files.forEach((file) => {
+      if (file.mimetype && file.mimetype.startsWith("image/")) {
+        const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+        imageAttachments.push({
+          name: file.originalname,
+          dataUrl
+        });
+      } else {
+        const text = bufferToSafeText(file.buffer);
+        const snippet = text ? text.slice(0, 4000) : "[binary or unsupported file]";
+        textAttachments.push({ name: file.originalname, content: snippet });
+      }
     });
 
-    const result = await callGroqAI(String(prompt), attachments);
+    const result = await callGroqAI(prompt, { textAttachments, imageAttachments });
     return res.json({ result });
   } catch (err) {
     console.error("[AI ERROR]", err);
