@@ -10,6 +10,12 @@ function apiUrl(path) {
 let attachments = [];
 let selectedFiles = [];
 let projectAttachments = [];
+let projectDirHandle = null;
+let projectFileHandles = new Map();
+let projectFileContents = new Map();
+let pendingChanges = [];
+let pendingCommitMessage = "";
+let pendingAction = "";
 
 const THREADS_KEY = "codez_threads_v1";
 const ACTIVE_THREAD_KEY = "codez_active_thread_v1";
@@ -26,6 +32,92 @@ function escapeHtml(unsafe) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function isTextFileName(name) {
+  return /\.(js|ts|jsx|tsx|json|md|txt|html|css|py|java|rb|go|rs|yml|yaml|env|xml|csv|toml|ini|sh|bat|ps1)$/i.test(
+    name || ""
+  );
+}
+
+async function readFileHandle(handle, maxPerFile) {
+  const file = await handle.getFile();
+  if (file.size > 2 * 1024 * 1024) return null;
+  if (!file.type || file.type.startsWith("text/") || isTextFileName(file.name)) {
+    const text = await file.text();
+    return text.slice(0, maxPerFile);
+  }
+  return null;
+}
+
+async function collectProjectFilesFromDir(dirHandle, prefix = "") {
+  for await (const [name, handle] of dirHandle.entries()) {
+    if (name === "node_modules" || name === ".git" || name === "dist" || name === "build") {
+      continue;
+    }
+    if (handle.kind === "file") {
+      const path = prefix ? `${prefix}/${name}` : name;
+      projectFileHandles.set(path, handle);
+    } else if (handle.kind === "directory") {
+      const nextPrefix = prefix ? `${prefix}/${name}` : name;
+      await collectProjectFilesFromDir(handle, nextPrefix);
+    }
+  }
+}
+
+function updateProjectInfoText(baseText, readCount) {
+  const projectInfo = document.getElementById("projectInfo");
+  if (!projectInfo) return;
+  if (!baseText) {
+    projectInfo.textContent = "No project added";
+    return;
+  }
+  const suffix = typeof readCount === "number" ? `, ${readCount} read` : "";
+  projectInfo.textContent = `${baseText}${suffix}`;
+}
+
+async function loadProjectFromHandle(dirHandle) {
+  projectAttachments = [];
+  projectFileHandles = new Map();
+  projectFileContents = new Map();
+
+  await collectProjectFilesFromDir(dirHandle);
+
+  const maxTotalChars = 300000;
+  const maxPerFile = 50000;
+  let total = 0;
+  const collected = [];
+
+  for (const [path, handle] of projectFileHandles.entries()) {
+    if (total >= maxTotalChars) break;
+    const text = await readFileHandle(handle, Math.min(maxPerFile, maxTotalChars - total));
+    if (typeof text === "string") {
+      total += text.length;
+      const item = { name: path, content: text };
+      collected.push(item);
+      projectFileContents.set(path, text);
+    }
+  }
+
+  projectAttachments = collected;
+  updateProjectInfoText(`${projectFileHandles.size} files`, projectAttachments.length);
+}
+
+async function openProjectFolder() {
+  if (!window.showDirectoryPicker) {
+    const fallback = document.getElementById("projectFolder");
+    if (fallback) fallback.click();
+    return;
+  }
+  try {
+    const dirHandle = await window.showDirectoryPicker();
+    const perm = await dirHandle.requestPermission({ mode: "readwrite" });
+    if (perm !== "granted") return;
+    projectDirHandle = dirHandle;
+    await loadProjectFromHandle(dirHandle);
+  } catch (err) {
+    console.error("[ERROR] openProjectFolder", err);
+  }
 }
 
 // Chat message append with code highlighting support
@@ -220,6 +312,83 @@ function renderThreadMessages() {
   });
 }
 
+function extractJsonBlock(text) {
+  if (!text) return null;
+  const fenced = text.match(/```json\s*([\s\S]*?)```/i);
+  if (fenced && fenced[1]) return fenced[1].trim();
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
+  if (first !== -1 && last !== -1 && last > first) {
+    return text.slice(first, last + 1);
+  }
+  return null;
+}
+
+async function getFileHandleForPath(path, create) {
+  if (!projectDirHandle) return null;
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length === 0) return null;
+  let dir = projectDirHandle;
+  for (let i = 0; i < parts.length - 1; i++) {
+    dir = await dir.getDirectoryHandle(parts[i], { create });
+  }
+  return await dir.getFileHandle(parts[parts.length - 1], { create });
+}
+
+async function writeFileAtPath(path, content) {
+  const handle = await getFileHandleForPath(path, true);
+  if (!handle) return false;
+  const writable = await handle.createWritable();
+  await writable.write(content);
+  await writable.close();
+  projectFileHandles.set(path, handle);
+  projectFileContents.set(path, content);
+  return true;
+}
+
+async function applyEditsFromAI(aiText) {
+  if (!projectDirHandle) {
+    return { ok: false, message: "Write access नहीं मिला. पहले Open Folder करें." };
+  }
+  const jsonText = extractJsonBlock(aiText);
+  if (!jsonText) return { ok: false, message: "AI response JSON नहीं मिला." };
+
+  let payload;
+  try {
+    payload = JSON.parse(jsonText);
+  } catch {
+    return { ok: false, message: "AI response JSON parse नहीं हुआ." };
+  }
+
+  const edits = Array.isArray(payload.edits) ? payload.edits : [];
+  if (!edits.length) {
+    return { ok: false, message: "AI ने कोई edit नहीं दिया." };
+  }
+
+  const applied = [];
+  for (const edit of edits) {
+    const path = String(edit.path || edit.file || "").trim();
+    const content = typeof edit.content === "string" ? edit.content : "";
+    if (!path) continue;
+    const ok = await writeFileAtPath(path, content);
+    if (ok) applied.push(path);
+  }
+
+  if (!applied.length) {
+    return { ok: false, message: "कोई file apply नहीं हो सकी." };
+  }
+
+  pendingChanges = applied;
+  pendingCommitMessage = payload.commit_message || "";
+  await loadProjectFromHandle(projectDirHandle);
+  return {
+    ok: true,
+    message: `Applied: ${applied.join(", ")}`,
+    summary: payload.summary || "",
+    commitMessage: pendingCommitMessage
+  };
+}
+
 async function refreshModels() {
   const selectEl = document.getElementById("modelSelect");
 
@@ -265,6 +434,83 @@ async function refreshModels() {
   }
 }
 
+function isConfirmYes(text) {
+  return /(ha+n|yes|yep|ok|haan|hmm ok|kr do|kar do)/i.test(text || "");
+}
+
+function isConfirmNo(text) {
+  return /(nahi|no|cancel|na)/i.test(text || "");
+}
+
+function isEditRequest(text) {
+  return /(fix|apply|update|change|edit|improve|refactor|optimize|better|kami|sahi|thik)/i.test(
+    text || ""
+  );
+}
+
+function isGitHubLogin(text) {
+  return /(github).*?(login|signin|sign in)/i.test(text || "");
+}
+
+function isGoogleLogin(text) {
+  return /(google).*?(login|signin|sign in)/i.test(text || "");
+}
+
+async function handleCommandIntent(message) {
+  if (pendingAction === "commit") {
+    if (isConfirmYes(message)) {
+      pendingAction = "push";
+      appendChatMessage(
+        "ai",
+        "Commit के लिए ये चलाएं:\n\ngit add -A\ngit commit -m \"" +
+          (pendingCommitMessage || "update") +
+          "\"\n\nअब push करूं? (haan/nahin)"
+      );
+      return true;
+    }
+    if (isConfirmNo(message)) {
+      pendingAction = "";
+      appendChatMessage("ai", "ठीक है, commit cancel कर दिया.");
+      return true;
+    }
+  }
+
+  if (pendingAction === "push") {
+    if (isConfirmYes(message)) {
+      pendingAction = "";
+      appendChatMessage("ai", "Push के लिए चलाएं:\n\ngit push");
+      return true;
+    }
+    if (isConfirmNo(message)) {
+      pendingAction = "";
+      appendChatMessage("ai", "ठीक है, push नहीं करेंगे.");
+      return true;
+    }
+  }
+
+  if (/commit/i.test(message || "")) {
+    if (!pendingChanges.length) {
+      appendChatMessage("ai", "अभी कोई applied changes नहीं हैं.");
+      return true;
+    }
+    pendingAction = "commit";
+    appendChatMessage("ai", "Commit करूं? (haan/nahin)");
+    return true;
+  }
+
+  if (isGitHubLogin(message)) {
+    window.location.href = `${BACKEND_BASE}/auth/github`;
+    return true;
+  }
+
+  if (isGoogleLogin(message)) {
+    window.location.href = `${BACKEND_BASE}/auth/google`;
+    return true;
+  }
+
+  return false;
+}
+
 // Main send function
 async function sendChatMessage() {
   const input = document.getElementById("chatInput");
@@ -290,10 +536,29 @@ async function sendChatMessage() {
   const userPreview = message || (hasFiles ? "[Image(s) attached]" : "");
   appendChatMessage("user", userPreview, { images: imagePreviews });
 
+  if (await handleCommandIntent(message)) {
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    return;
+  }
+
   const placeholder = appendChatMessage("ai", "Soch raha hoon...", { persist: false });
 
   try {
-    const finalPrompt = message || "Please analyze the attached image(s).";
+    let finalPrompt = message || "Please analyze the attached image(s).";
+    const wantsApply = isEditRequest(message) && projectAttachments.length > 0;
+    if (wantsApply && !projectDirHandle) {
+      placeholder.remove();
+      appendChatMessage("ai", "Edit/apply करने के लिए पहले Open Folder (write) करें.");
+      return;
+    }
+    if (wantsApply) {
+      finalPrompt =
+        "User request: " +
+        message +
+        "\n\nYou will edit project files. Respond ONLY as JSON in this exact schema:\n" +
+        "{ \"summary\": \"...\", \"commit_message\": \"...\", \"edits\": [ { \"path\": \"relative/path\", \"content\": \"full file content\" } ] }\n" +
+        "Apply fixes or improvements requested by the user. Do not include any extra text.";
+    }
     let response;
     if (selectedFiles.length > 0) {
       const form = new FormData();
@@ -327,7 +592,22 @@ async function sendChatMessage() {
 
     const data = await response.json();
     placeholder.remove();
-    appendChatMessage("ai", data.result || data.error || "Koi jawab nahi mila");
+
+    if (wantsApply) {
+      const applyResult = await applyEditsFromAI(data.result || "");
+      if (applyResult.ok) {
+        const summaryText = applyResult.summary ? applyResult.summary + "\n\n" : "";
+        appendChatMessage(
+          "ai",
+          summaryText + applyResult.message + "\n\nCommit करूं? (haan/nahin)"
+        );
+        pendingAction = "commit";
+      } else {
+        appendChatMessage("ai", applyResult.message);
+      }
+    } else {
+      appendChatMessage("ai", data.result || data.error || "Koi jawab nahi mila");
+    }
 
     // Clear attachments after successful send
     selectedFiles = [];
@@ -518,6 +798,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const projectFolder = document.getElementById("projectFolder");
   const projectInfo = document.getElementById("projectInfo");
+  const projectFolderBtn = document.getElementById("projectFolderBtn");
+  if (projectFolderBtn) {
+    projectFolderBtn.addEventListener("click", () => {
+      openProjectFolder();
+    });
+  }
   if (projectFolder) {
     projectFolder.addEventListener("change", async () => {
       const files = Array.from(projectFolder.files || []);
@@ -544,6 +830,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       projectAttachments = collected;
+      projectFileContents = new Map();
+      collected.forEach((item) => projectFileContents.set(item.name, item.content));
       if (projectInfo) {
         const suffix = projectAttachments.length ? `, ${projectAttachments.length} read` : ", 0 read";
         projectInfo.textContent = files.length

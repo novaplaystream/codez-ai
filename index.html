@@ -78,8 +78,12 @@
       <div class="nav-section">
         <div class="nav-section-title">Project</div>
         <div class="project-card">
-          <label class="nav-link icon-only" for="projectFolder" aria-label="Add Project Files" data-label>
+          <button id="projectFolderBtn" class="nav-link icon-only" aria-label="Open Project Folder" data-label>
             <svg><use href="#i-folder"></use></svg>
+            <span class="btn-label">Open Folder</span>
+          </button>
+          <label class="nav-link icon-only" for="projectFolder" aria-label="Add Project Files (Read-only)" data-label>
+            <svg><use href="#i-file-plus"></use></svg>
             <span class="btn-label">Add Files</span>
           </label>
           <input type="file" id="projectFolder" class="hidden-input" multiple />
