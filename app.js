@@ -161,19 +161,18 @@ async function runAI(mode) {
 
 // Sab kuch DOM ready hone ke baad bind karo
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[INFO] DOM loaded – event listeners bind kar rahe hain");
+  console.log("DOM ready → binding send button");
 
-  const chatInput = document.getElementById("chatInput");
   const sendBtn = document.querySelector(".chat-send");
+  if (sendBtn) {
+    sendBtn.addEventListener("click", sendChatMessage);
+    console.log("Send button successfully bound");
+  } else {
+    console.error("Send button (.chat-send) nahi mila DOM mein");
+  }
 
-  if (chatInput) {
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        console.log("[DEBUG] Enter key press → sendChatMessage");
-        sendChatMessage();
-      }
-    });
+  // Enter key wala code bhi yahin rakh (pehle se hai toh theek)
+});
   } else {
     console.error("[CRITICAL] chatInput ID nahi mila");
   }
