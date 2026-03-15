@@ -474,19 +474,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("loginBtn");
   if (loginBtn) {
     loginBtn.addEventListener("click", () => {
-      const status = document.getElementById("authStatus");
-      if (status) status.textContent = "Connected (demo)";
-      appendChatMessage("ai", "GitHub login flow is not wired yet.");
+      window.location.href = "/auth/github";
     });
   }
 
   const googleLoginBtn = document.getElementById("googleLoginBtn");
   if (googleLoginBtn) {
     googleLoginBtn.addEventListener("click", () => {
-      const status = document.getElementById("authStatus");
-      if (status) status.textContent = "Connected (demo)";
-      appendChatMessage("ai", "Google login flow is not wired yet.");
+      window.location.href = "/auth/google";
     });
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const auth = params.get("auth");
+  const error = params.get("error");
+  if (auth) {
+    const status = document.getElementById("authStatus");
+    if (error) {
+      if (status) status.textContent = "Login failed";
+      appendChatMessage("ai", `${auth} login failed. Please try again.`);
+    } else {
+      if (status) status.textContent = `Connected (${auth})`;
+      appendChatMessage("ai", `${auth} login successful.`);
+    }
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 
   const attachInfo = document.getElementById("attachInfo");

@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
+import fetch from "node-fetch";
 import { Groq } from "groq-sdk";
 
 const app = express();
@@ -38,6 +39,102 @@ app.get("/models", async (req, res) => {
   } catch (err) {
     console.error("[MODELS ERROR]", err);
     return res.status(500).json({ error: "Models fetch failed" });
+  }
+});
+
+app.get("/auth/github", (req, res) => {
+  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return res.status(400).send("GitHub OAuth not configured.");
+  }
+  const redirectUri = `${req.protocol}://${req.get("host")}/auth/github/callback`;
+  const url = new URL("https://github.com/login/oauth/authorize");
+  url.searchParams.set("client_id", clientId);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("scope", "read:user user:email");
+  return res.redirect(url.toString());
+});
+
+app.get("/auth/github/callback", async (req, res) => {
+  try {
+    const code = req.query.code;
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    if (!code || !clientId || !clientSecret) {
+      return res.redirect("/?auth=github&error=1");
+    }
+    const redirectUri = `${req.protocol}://${req.get("host")}/auth/github/callback`;
+    const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        redirect_uri: redirectUri
+      })
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) {
+      return res.redirect("/?auth=github&error=1");
+    }
+    return res.redirect("/?auth=github");
+  } catch (err) {
+    console.error("[GITHUB AUTH ERROR]", err);
+    return res.redirect("/?auth=github&error=1");
+  }
+});
+
+app.get("/auth/google", (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return res.status(400).send("Google OAuth not configured.");
+  }
+  const redirectUri = `${req.protocol}://${req.get("host")}/auth/google/callback`;
+  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  url.searchParams.set("client_id", clientId);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "openid email profile");
+  url.searchParams.set("access_type", "offline");
+  url.searchParams.set("prompt", "consent");
+  return res.redirect(url.toString());
+});
+
+app.get("/auth/google/callback", async (req, res) => {
+  try {
+    const code = req.query.code;
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    if (!code || !clientId || !clientSecret) {
+      return res.redirect("/?auth=google&error=1");
+    }
+    const redirectUri = `${req.protocol}://${req.get("host")}/auth/google/callback`;
+    const body = new URLSearchParams({
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code"
+    });
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) {
+      return res.redirect("/?auth=google&error=1");
+    }
+    return res.redirect("/?auth=google");
+  } catch (err) {
+    console.error("[GOOGLE AUTH ERROR]", err);
+    return res.redirect("/?auth=google&error=1");
   }
 });
 
