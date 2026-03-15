@@ -182,7 +182,7 @@ body{
 .thread-delete{position:absolute;right:6px;top:6px;border:none;background:transparent;color:#a3a3a3;cursor:pointer;font-size:14px;display:none;}
 .thread-item:hover .thread-delete{display:block;}
 .thread-empty{font-size:12px;color:var(--muted);padding:6px 10px;}
-.nav-footer{margin-top:auto;}
+.nav-footer{margin-top:auto;display:flex;flex-direction:column;gap:8px;}
 
 
 .hidden-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}

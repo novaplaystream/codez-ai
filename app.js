@@ -7,6 +7,11 @@ function apiUrl(path) {
 let attachments = [];
 let selectedFiles = [];
 
+const THREADS_KEY = "codez_threads_v1";
+const ACTIVE_THREAD_KEY = "codez_active_thread_v1";
+let threads = [];
+let activeThreadId = null;
+
 // Simple HTML escape function
 function escapeHtml(unsafe) {
   return unsafe
@@ -65,7 +70,147 @@ function appendChatMessage(role, text, opts = {}) {
 
   log.scrollTop = log.scrollHeight;
 
+  if (opts.persist !== false && (role === "user" || role === "ai")) {
+    persistMessage(role, text);
+  }
+
   return row;
+}
+
+function loadThreads() {
+  try {
+    const saved = localStorage.getItem(THREADS_KEY);
+    threads = saved ? JSON.parse(saved) : [];
+  } catch {
+    threads = [];
+  }
+  activeThreadId = localStorage.getItem(ACTIVE_THREAD_KEY);
+}
+
+function saveThreads() {
+  localStorage.setItem(THREADS_KEY, JSON.stringify(threads));
+  if (activeThreadId) {
+    localStorage.setItem(ACTIVE_THREAD_KEY, activeThreadId);
+  }
+}
+
+function getActiveThread() {
+  return threads.find((t) => t.id === activeThreadId) || null;
+}
+
+function renderThreadList() {
+  const group = document.getElementById("threadGroup");
+  if (!group) return;
+  group.innerHTML = "";
+
+  if (!threads.length) {
+    const empty = document.createElement("div");
+    empty.className = "thread-empty";
+    empty.textContent = "No threads yet";
+    group.appendChild(empty);
+    return;
+  }
+
+  threads
+    .slice()
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+    .forEach((thread) => {
+      const item = document.createElement("div");
+      item.className = "thread-item";
+      if (thread.id === activeThreadId) item.classList.add("active");
+
+      const title = document.createElement("div");
+      title.className = "thread-title";
+      title.textContent = thread.title || "New conversation";
+
+      const time = document.createElement("div");
+      time.className = "thread-time";
+      time.textContent = thread.updatedAt
+        ? new Date(thread.updatedAt).toLocaleString()
+        : "just now";
+
+      const del = document.createElement("button");
+      del.className = "thread-delete";
+      del.title = "Delete thread";
+      del.textContent = "×";
+      del.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteThread(thread.id);
+      });
+
+      item.appendChild(title);
+      item.appendChild(time);
+      item.appendChild(del);
+
+      item.addEventListener("click", () => {
+        setActiveThread(thread.id);
+      });
+
+      group.appendChild(item);
+    });
+}
+
+function createThread(title) {
+  const id = `t_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  const now = Date.now();
+  const thread = {
+    id,
+    title: title || "New conversation",
+    createdAt: now,
+    updatedAt: now,
+    messages: []
+  };
+  threads.push(thread);
+  activeThreadId = id;
+  saveThreads();
+  renderThreadList();
+  return thread;
+}
+
+function setActiveThread(id) {
+  activeThreadId = id;
+  saveThreads();
+  renderThreadList();
+  renderThreadMessages();
+}
+
+function deleteThread(id) {
+  threads = threads.filter((t) => t.id !== id);
+  if (activeThreadId === id) {
+    activeThreadId = threads[0]?.id || null;
+  }
+  if (!activeThreadId && threads.length === 0) {
+    createThread("New conversation");
+  }
+  saveThreads();
+  renderThreadList();
+  renderThreadMessages();
+}
+
+function persistMessage(role, text) {
+  const thread = getActiveThread();
+  if (!thread) return;
+  thread.messages = thread.messages || [];
+  thread.messages.push({ role, text, ts: Date.now() });
+  thread.updatedAt = Date.now();
+  if (!thread.title || thread.title === "New conversation") {
+    if (role === "user" && text) {
+      thread.title = text.slice(0, 40);
+    }
+  }
+  saveThreads();
+  renderThreadList();
+}
+
+function renderThreadMessages() {
+  const chatLog = document.getElementById("chatLog");
+  if (!chatLog) return;
+  chatLog.innerHTML = "";
+  const thread = getActiveThread();
+  if (!thread) return;
+  (thread.messages || []).forEach((msg) => {
+    appendChatMessage(msg.role, msg.text, { persist: false });
+  });
 }
 
 // Main send function
@@ -93,7 +238,7 @@ async function sendChatMessage() {
   const userPreview = message || (hasFiles ? "[Image(s) attached]" : "");
   appendChatMessage("user", userPreview, { images: imagePreviews });
 
-  const placeholder = appendChatMessage("ai", "Soch raha hoon...");
+  const placeholder = appendChatMessage("ai", "Soch raha hoon...", { persist: false });
 
   try {
     const finalPrompt = message || "Please analyze the attached image(s).";
@@ -188,33 +333,13 @@ async function runAI(mode) {
   }
 }
 
-function setActiveThread(newItem) {
-  document.querySelectorAll(".thread-item").forEach((el) => el.classList.remove("active"));
-  if (newItem) newItem.classList.add("active");
-}
-
-function addThreadItem(title) {
-  const group = document.getElementById("threadGroup") || document.querySelector(".thread-group");
-  if (!group) return null;
-
-  const item = document.createElement("div");
-  item.className = "thread-item";
-  item.innerHTML = `
-    <div class="thread-title">${escapeHtml(title)}</div>
-    <div class="thread-time">just now</div>
-  `;
-  item.addEventListener("click", () => setActiveThread(item));
-  group.prepend(item);
-  setActiveThread(item);
-  return item;
-}
-
 function startNewThread() {
   const chatLog = document.getElementById("chatLog");
   if (chatLog) chatLog.innerHTML = "";
   const input = document.getElementById("chatInput");
   if (input) input.value = "";
-  addThreadItem("New conversation");
+  createThread("New conversation");
+  renderThreadMessages();
   appendChatMessage("ai", "नई बातचीत शुरू हुई। मैं अब हिंदी में जवाब दूंगा।");
 }
 
@@ -257,6 +382,17 @@ function setupLabelToggles() {
 
 // Sab kuch DOM ready hone ke baad bind karo
 document.addEventListener("DOMContentLoaded", () => {
+  loadThreads();
+  if (!threads.length) {
+    createThread("Batao project ke bare mein");
+    appendChatMessage("ai", "नई बातचीत शुरू हुई। मैं अब हिंदी में जवाब दूंगा।");
+  } else if (!activeThreadId) {
+    activeThreadId = threads[0].id;
+  }
+  saveThreads();
+  renderThreadList();
+  renderThreadMessages();
+
   const input = document.getElementById("chatInput");
   if (input) {
     input.addEventListener("keydown", (e) => {
@@ -270,6 +406,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const status = document.getElementById("authStatus");
       if (status) status.textContent = "Connected (demo)";
       appendChatMessage("ai", "GitHub login flow is not wired yet.");
+    });
+  }
+
+  const googleLoginBtn = document.getElementById("googleLoginBtn");
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", () => {
+      const status = document.getElementById("authStatus");
+      if (status) status.textContent = "Connected (demo)";
+      appendChatMessage("ai", "Google login flow is not wired yet.");
     });
   }
 
