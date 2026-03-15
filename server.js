@@ -3,7 +3,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
-import mongoose from "mongoose";
 import { Groq } from "groq-sdk";
 
 const app = express();
@@ -27,25 +26,54 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-// Chat model
-const chatSchema = new mongoose.Schema({
-  userId: String,
-  prompt: String,
-  response: String,
-  createdAt: { type: Date, default: Date.now }
-});
-const Chat = mongoose.model("Chat", chatSchema);
-
 // Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function callGroqAI(prompt, attachments = []) {
-  // ... (same as before — maine pehle diya tha)
-  // model: "llama-3.3-70b-versatile"  ← yeh hi best hai
+  if (!process.env.GROQ_API_KEY) {
+    return "GROQ_API_KEY missing. Please set it in .env and redeploy.";
+  }
+
+  const attachmentNote =
+    attachments && attachments.length
+      ? `\n\nAttachments: ${attachments.map((a) => a.name).join(", ")}`
+      : "";
+
+  const messages = [
+    {
+      role: "system",
+      content:
+        "You are Codez AI, a helpful coding assistant. Reply concisely in Hindi-English mix."
+    },
+    {
+      role: "user",
+      content: `${prompt}${attachmentNote}`
+    }
+  ];
+
+  const response = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages,
+    temperature: 0.4,
+    max_tokens: 800
+  });
+
+  return response?.choices?.[0]?.message?.content?.trim() || "No response";
 }
 
 app.post("/ai", async (req, res) => {
-  // ... (same as before)
+  try {
+    const { prompt, attachments } = req.body || {};
+    if (!prompt || !String(prompt).trim()) {
+      return res.status(400).json({ error: "Prompt missing" });
+    }
+
+    const result = await callGroqAI(String(prompt), attachments || []);
+    return res.json({ result });
+  } catch (err) {
+    console.error("[AI ERROR]", err);
+    return res.status(500).json({ error: "AI request failed" });
+  }
 });
 
 app.listen(PORT, "0.0.0.0", () => {
