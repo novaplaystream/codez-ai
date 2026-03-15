@@ -44,6 +44,35 @@ function bufferToSafeText(buffer) {
 // Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+function hasDevanagari(text) {
+  return /[\u0900-\u097F]/.test(text || "");
+}
+
+async function ensureHindi(text) {
+  if (!text) return text;
+  if (hasDevanagari(text)) return text;
+
+  const messages = [
+    {
+      role: "system",
+      content: "Translate the assistant reply to Hindi only. Do not include any English."
+    },
+    {
+      role: "user",
+      content: text
+    }
+  ];
+
+  const response = await groq.chat.completions.create({
+    model: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
+    messages,
+    temperature: 0.2,
+    max_tokens: 800
+  });
+
+  return response?.choices?.[0]?.message?.content?.trim() || text;
+}
+
 async function callGroqAI(prompt, options = {}) {
   const { textAttachments = [], imageAttachments = [] } = options;
   if (!process.env.GROQ_API_KEY) {
@@ -96,7 +125,8 @@ async function callGroqAI(prompt, options = {}) {
     max_tokens: 800
   });
 
-  return response?.choices?.[0]?.message?.content?.trim() || "No response";
+  const raw = response?.choices?.[0]?.message?.content?.trim() || "No response";
+  return await ensureHindi(raw);
 }
 
 app.post("/ai", upload.array("files", 10), async (req, res) => {
