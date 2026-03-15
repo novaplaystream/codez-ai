@@ -86,7 +86,7 @@ async function callGroqAI(prompt, options = {}) {
   ];
 
   const model = imageAttachments.length
-    ? process.env.GROQ_VISION_MODEL || "llama-3.2-11b-vision-preview"
+    ? process.env.GROQ_VISION_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct"
     : process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile";
 
   const response = await groq.chat.completions.create({
