@@ -294,6 +294,27 @@ app.post("/ai", upload.array("files", 10), async (req, res) => {
       }
     });
 
+    let bodyAttachments = [];
+    if (Array.isArray(req.body?.attachments)) {
+      bodyAttachments = req.body.attachments;
+    } else if (typeof req.body?.attachments === "string") {
+      try {
+        bodyAttachments = JSON.parse(req.body.attachments);
+      } catch {}
+    }
+    if (typeof req.body?.meta_attachments === "string") {
+      try {
+        const meta = JSON.parse(req.body.meta_attachments);
+        if (Array.isArray(meta)) bodyAttachments = bodyAttachments.concat(meta);
+      } catch {}
+    }
+    bodyAttachments.forEach((a) => {
+      if (a && a.name && typeof a.content === "string") {
+        const snippet = a.content.slice(0, 4000);
+        textAttachments.push({ name: String(a.name), content: snippet });
+      }
+    });
+
     const result = await callGroqAI(prompt, { textAttachments, imageAttachments, modelOverride });
     return res.json({ result });
   } catch (err) {

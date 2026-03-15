@@ -9,6 +9,7 @@ function apiUrl(path) {
 
 let attachments = [];
 let selectedFiles = [];
+let projectAttachments = [];
 
 const THREADS_KEY = "codez_threads_v1";
 const ACTIVE_THREAD_KEY = "codez_active_thread_v1";
@@ -297,6 +298,9 @@ async function sendChatMessage() {
       const form = new FormData();
       form.append("prompt", finalPrompt);
       if (selectedModel) form.append("model", selectedModel);
+      if (projectAttachments.length) {
+        form.append("meta_attachments", JSON.stringify(projectAttachments));
+      }
       selectedFiles.forEach((file) => form.append("files", file, file.name));
       response = await fetch(apiUrl("/ai"), {
         method: "POST",
@@ -310,7 +314,7 @@ async function sendChatMessage() {
         },
         body: JSON.stringify({
           prompt: finalPrompt,
-          attachments: attachments || [],
+          attachments: projectAttachments.length ? projectAttachments : attachments || [],
           model: selectedModel || ""
         })
       });
@@ -514,12 +518,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const projectFolder = document.getElementById("projectFolder");
   const projectInfo = document.getElementById("projectInfo");
   if (projectFolder) {
-    projectFolder.addEventListener("change", () => {
+    projectFolder.addEventListener("change", async () => {
       const files = Array.from(projectFolder.files || []);
       const root = files[0]?.webkitRelativePath?.split("/")[0] || files[0]?.name || "Project";
+
+      const maxTotalChars = 300000;
+      const maxPerFile = 50000;
+      let total = 0;
+      const collected = [];
+
+      for (const file of files) {
+        if (total >= maxTotalChars) break;
+        if (file.size > 2 * 1024 * 1024) continue;
+        if (!file.type || file.type.startsWith("text/") || file.name.match(/\.(js|ts|jsx|tsx|json|md|txt|html|css|py|java|rb|go|rs|yml|yaml|env|xml|csv)$/i)) {
+          try {
+            const text = await file.text();
+            const snippet = text.slice(0, Math.min(maxPerFile, maxTotalChars - total));
+            total += snippet.length;
+            collected.push({ name: file.name, content: snippet });
+          } catch {
+            continue;
+          }
+        }
+      }
+
+      projectAttachments = collected;
       if (projectInfo) {
+        const suffix = projectAttachments.length ? `, ${projectAttachments.length} read` : ", 0 read";
         projectInfo.textContent = files.length
-          ? `${root} (${files.length} files)`
+          ? `${root} (${files.length} files${suffix})`
           : "No project added";
       }
     });
