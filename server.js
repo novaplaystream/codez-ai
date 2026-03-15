@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
+import multer from "multer";
 import { Groq } from "groq-sdk";
 
 const app = express();
@@ -26,6 +27,20 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
+// Uploads (memory, small)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1024 * 1024, files: 10 }
+});
+
+function bufferToSafeText(buffer) {
+  const text = buffer.toString("utf8");
+  const nonPrintable = (text.match(/[^\x09\x0A\x0D\x20-\x7E]/g) || []).length;
+  const ratio = text.length ? nonPrintable / text.length : 0;
+  if (ratio > 0.2) return null;
+  return text;
+}
+
 // Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -34,10 +49,12 @@ async function callGroqAI(prompt, attachments = []) {
     return "GROQ_API_KEY missing. Please set it in .env and redeploy.";
   }
 
-  const attachmentNote =
-    attachments && attachments.length
-      ? `\n\nAttachments: ${attachments.map((a) => a.name).join(", ")}`
-      : "";
+  const attachmentNote = attachments.length
+    ? "\n\nAttachments:\n" +
+      attachments
+        .map((a) => `- ${a.name}${a.content ? "\n" + a.content : ""}`)
+        .join("\n\n")
+    : "";
 
   const messages = [
     {
@@ -61,14 +78,21 @@ async function callGroqAI(prompt, attachments = []) {
   return response?.choices?.[0]?.message?.content?.trim() || "No response";
 }
 
-app.post("/ai", async (req, res) => {
+app.post("/ai", upload.array("files", 10), async (req, res) => {
   try {
-    const { prompt, attachments } = req.body || {};
+    const prompt = req.body?.prompt;
     if (!prompt || !String(prompt).trim()) {
       return res.status(400).json({ error: "Prompt missing" });
     }
 
-    const result = await callGroqAI(String(prompt), attachments || []);
+    const files = Array.from(req.files || []);
+    const attachments = files.map((file) => {
+      const text = bufferToSafeText(file.buffer);
+      const snippet = text ? text.slice(0, 4000) : "[binary or unsupported file]";
+      return { name: file.originalname, content: snippet };
+    });
+
+    const result = await callGroqAI(String(prompt), attachments);
     return res.json({ result });
   } catch (err) {
     console.error("[AI ERROR]", err);

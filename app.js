@@ -5,6 +5,7 @@ function apiUrl(path) {
 }
 
 let attachments = [];
+let selectedFiles = [];
 
 // Simple HTML escape function
 function escapeHtml(unsafe) {
@@ -51,7 +52,7 @@ function appendChatMessage(role, text) {
   return row;
 }
 
-// Main send function with full debug
+// Main send function
 async function sendChatMessage() {
   const input = document.getElementById("chatInput");
   if (!input) {
@@ -68,16 +69,27 @@ async function sendChatMessage() {
   const placeholder = appendChatMessage("ai", "Soch raha hoon...");
 
   try {
-    const response = await fetch(apiUrl("/ai"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        prompt: message,
-        attachments: attachments || []
-      })
-    });
+    let response;
+    if (selectedFiles.length > 0) {
+      const form = new FormData();
+      form.append("prompt", message);
+      selectedFiles.forEach((file) => form.append("files", file, file.name));
+      response = await fetch(apiUrl("/ai"), {
+        method: "POST",
+        body: form
+      });
+    } else {
+      response = await fetch(apiUrl("/ai"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: message,
+          attachments: attachments || []
+        })
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`Server ne ${response.status} status diya`);
@@ -86,6 +98,16 @@ async function sendChatMessage() {
     const data = await response.json();
     placeholder.remove();
     appendChatMessage("ai", data.result || data.error || "Koi jawab nahi mila");
+
+    // Clear attachments after successful send
+    selectedFiles = [];
+    attachments = [];
+    const attachInfo = document.getElementById("attachInfo");
+    if (attachInfo) attachInfo.textContent = "No attachments";
+    ["aiFile", "chatFile", "chatFolder"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
   } catch (err) {
     console.error("[ERROR] Fetch mein problem:", err.message, err.stack);
     placeholder.remove();
@@ -230,12 +252,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateAttachments = () => {
     const list = [];
+    const files = [];
     fileInputs.forEach((inputEl) => {
       Array.from(inputEl.files || []).forEach((f) => {
         list.push({ name: f.name, size: f.size });
+        files.push(f);
       });
     });
     attachments = list;
+    selectedFiles = files;
     if (attachInfo) {
       attachInfo.textContent = attachments.length
         ? `${attachments.length} file(s) attached`
