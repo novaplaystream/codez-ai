@@ -180,6 +180,42 @@ function hasDevanagari(text) {
   return /[\u0900-\u097F]/.test(text || "");
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withTimeout(promise, ms) {
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("GROQ_TIMEOUT")), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function callGroqWithRetry(requestFn) {
+  const retries = Number(process.env.GROQ_RETRIES || 1);
+  const timeoutMs = Number(process.env.GROQ_TIMEOUT_MS || 15000);
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await withTimeout(requestFn(), timeoutMs);
+    } catch (err) {
+      lastErr = err;
+      const code = err?.code || err?.cause?.code || "";
+      if (attempt < retries && (code === "ETIMEDOUT" || String(err?.message).includes("TIMEOUT"))) {
+        await sleep(500 * (attempt + 1));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastErr;
+}
+
 async function ensureHindi(text) {
   if (!text) return text;
   if (hasDevanagari(text)) return text;
@@ -195,12 +231,14 @@ async function ensureHindi(text) {
     }
   ];
 
-  const response = await groq.chat.completions.create({
-    model: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
-    messages,
-    temperature: 0.2,
-    max_tokens: 800
-  });
+  const response = await callGroqWithRetry(() =>
+    groq.chat.completions.create({
+      model: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
+      messages,
+      temperature: 0.2,
+      max_tokens: 800
+    })
+  );
 
   return response?.choices?.[0]?.message?.content?.trim() || text;
 }
@@ -252,12 +290,14 @@ async function callGroqAI(prompt, options = {}) {
     ? process.env.GROQ_VISION_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct"
     : process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile";
 
-  const response = await groq.chat.completions.create({
-    model,
-    messages,
-    temperature: 0.4,
-    max_tokens: 800
-  });
+  const response = await callGroqWithRetry(() =>
+    groq.chat.completions.create({
+      model,
+      messages,
+      temperature: 0.4,
+      max_tokens: 800
+    })
+  );
 
   const raw = response?.choices?.[0]?.message?.content?.trim() || "No response";
   return await ensureHindi(raw);
