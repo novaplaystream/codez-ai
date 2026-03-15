@@ -9,8 +9,10 @@ let selectedFiles = [];
 
 const THREADS_KEY = "codez_threads_v1";
 const ACTIVE_THREAD_KEY = "codez_active_thread_v1";
+const SELECTED_MODEL_KEY = "codez_selected_model_v1";
 let threads = [];
 let activeThreadId = null;
+let selectedModel = "";
 
 // Simple HTML escape function
 function escapeHtml(unsafe) {
@@ -215,6 +217,7 @@ function renderThreadMessages() {
 
 async function refreshModels() {
   const listEl = document.getElementById("modelList");
+  const selectEl = document.getElementById("modelSelect");
   if (listEl) listEl.textContent = "Loading models...";
 
   try {
@@ -223,12 +226,37 @@ async function refreshModels() {
     const data = await res.json();
     const models = Array.isArray(data.models) ? data.models : [];
 
-    if (!listEl) return;
-    listEl.innerHTML = "";
+    if (listEl) listEl.innerHTML = "";
+    if (selectEl) selectEl.innerHTML = "";
 
     if (models.length === 0) {
-      listEl.textContent = "No models available for this key.";
+      if (listEl) listEl.textContent = "No models available for this key.";
+      if (selectEl) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No models";
+        selectEl.appendChild(opt);
+      }
       return;
+    }
+
+    if (selectEl) {
+      models.forEach((m) => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = m.id;
+        selectEl.appendChild(opt);
+      });
+      const saved = localStorage.getItem(SELECTED_MODEL_KEY);
+      const exists = saved && models.some((m) => m.id === saved);
+      selectedModel = exists ? saved : models[0].id;
+      selectEl.value = selectedModel;
+      localStorage.setItem(SELECTED_MODEL_KEY, selectedModel);
+
+      selectEl.addEventListener("change", () => {
+        selectedModel = selectEl.value;
+        localStorage.setItem(SELECTED_MODEL_KEY, selectedModel);
+      });
     }
 
     models.forEach((m) => {
@@ -299,7 +327,8 @@ async function sendChatMessage() {
         },
         body: JSON.stringify({
           prompt: finalPrompt,
-          attachments: attachments || []
+          attachments: attachments || [],
+          model: selectedModel || ""
         })
       });
     }
