@@ -18,7 +18,7 @@ function escapeHtml(unsafe) {
 }
 
 // Chat message append with code highlighting support
-function appendChatMessage(role, text) {
+function appendChatMessage(role, text, opts = {}) {
   const log = document.getElementById("chatLog") || document.getElementById("result");
   if (!log) return null;
 
@@ -28,12 +28,28 @@ function appendChatMessage(role, text) {
   const body = document.createElement("div");
   body.className = "chat-msg-body";
 
+  if (Array.isArray(opts.images) && opts.images.length) {
+    const gallery = document.createElement("div");
+    gallery.className = "chat-imgs";
+    opts.images.forEach((src) => {
+      const img = document.createElement("img");
+      img.className = "chat-img";
+      img.src = src;
+      img.alt = "User attachment";
+      img.loading = "lazy";
+      gallery.appendChild(img);
+    });
+    body.appendChild(gallery);
+  }
+
   let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     lang = lang || "javascript";
     return `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`;
   });
 
-  body.innerHTML = formatted.replace(/\n/g, "<br>");
+  const textBlock = document.createElement("div");
+  textBlock.innerHTML = formatted.replace(/\n/g, "<br>");
+  body.appendChild(textBlock);
 
   const actions = document.createElement("div");
   actions.className = "chat-msg-actions";
@@ -65,8 +81,17 @@ async function sendChatMessage() {
   if (!message && !hasFiles) return;
 
   input.value = "";
+  const imagePreviews = [];
+  if (hasFiles) {
+    selectedFiles.forEach((file) => {
+      if (file && file.type && file.type.startsWith("image/")) {
+        const url = URL.createObjectURL(file);
+        imagePreviews.push(url);
+      }
+    });
+  }
   const userPreview = message || (hasFiles ? "[Image(s) attached]" : "");
-  appendChatMessage("user", userPreview);
+  appendChatMessage("user", userPreview, { images: imagePreviews });
 
   const placeholder = appendChatMessage("ai", "Soch raha hoon...");
 
@@ -111,10 +136,12 @@ async function sendChatMessage() {
       const el = document.getElementById(id);
       if (el) el.value = "";
     });
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
   } catch (err) {
     console.error("[ERROR] Fetch mein problem:", err.message, err.stack);
     placeholder.remove();
     appendChatMessage("ai", "Error: " + err.message + " (console check karo)");
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
   }
 }
 
