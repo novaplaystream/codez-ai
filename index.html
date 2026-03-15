@@ -37,6 +37,9 @@
       <circle cx="12" cy="12" r="3"></circle>
       <path d="M3 12h6M15 12h6"></path>
     </symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24">
+      <path d="M12 21V9M8 13l4-4 4 4M4 3h16"></path>
+    </symbol>
     <symbol id="i-file-plus" viewBox="0 0 24 24">
       <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path>
       <path d="M14 2v6h6"></path>
@@ -106,6 +109,24 @@
       <div class="nav-section">
         <div class="nav-section-title">Threads</div>
         <div class="thread-group" id="threadGroup"></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Changes</div>
+        <div class="commit-card" id="pendingCommitCard">
+          <div class="commit-info" id="pendingCommitInfo">No pending changes</div>
+          <input id="pendingCommitMsg" type="text" placeholder="Commit message" />
+          <div class="commit-actions">
+            <button class="nav-link icon-only" id="prepareCommitBtn" aria-label="Prepare Commit" data-label>
+              <svg><use href="#i-commit"></use></svg>
+              <span class="btn-label">Prepare Commit</span>
+            </button>
+            <button class="nav-link icon-only" id="preparePushBtn" aria-label="Prepare Push" data-label>
+              <svg><use href="#i-upload"></use></svg>
+              <span class="btn-label">Prepare Push</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="nav-footer">

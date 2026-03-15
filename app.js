@@ -76,6 +76,25 @@ function updateProjectInfoText(baseText, readCount) {
   projectInfo.textContent = `${baseText}${suffix}`;
 }
 
+function updatePendingCommitUI() {
+  const info = document.getElementById("pendingCommitInfo");
+  const input = document.getElementById("pendingCommitMsg");
+  if (!info || !input) return;
+
+  if (!pendingChanges.length) {
+    info.textContent = "No pending changes";
+    input.value = "";
+    input.disabled = true;
+    return;
+  }
+
+  info.textContent = `Pending changes: ${pendingChanges.length}`;
+  input.disabled = false;
+  if (pendingCommitMessage) {
+    input.value = pendingCommitMessage;
+  }
+}
+
 async function loadProjectFromHandle(dirHandle) {
   projectAttachments = [];
   projectFileHandles = new Map();
@@ -381,6 +400,7 @@ async function applyEditsFromAI(aiText) {
   pendingChanges = applied;
   pendingCommitMessage = payload.commit_message || "";
   await loadProjectFromHandle(projectDirHandle);
+  updatePendingCommitUI();
   return {
     ok: true,
     message: `Applied: ${applied.join(", ")}`,
@@ -731,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
   saveThreads();
   renderThreadList();
   renderThreadMessages();
+  updatePendingCommitUI();
 
   const input = document.getElementById("chatInput");
   if (input) {
@@ -766,6 +787,41 @@ document.addEventListener("DOMContentLoaded", () => {
       appendChatMessage("ai", `${auth} login successful.`);
     }
     window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  const pendingCommitMsgInput = document.getElementById("pendingCommitMsg");
+  if (pendingCommitMsgInput) {
+    pendingCommitMsgInput.addEventListener("input", () => {
+      pendingCommitMessage = pendingCommitMsgInput.value.trim();
+    });
+  }
+
+  const prepareCommitBtn = document.getElementById("prepareCommitBtn");
+  if (prepareCommitBtn) {
+    prepareCommitBtn.addEventListener("click", () => {
+      if (!pendingChanges.length) {
+        appendChatMessage("ai", "अभी कोई applied changes नहीं हैं.");
+        return;
+      }
+      const msg = pendingCommitMessage || "update";
+      appendChatMessage(
+        "ai",
+        "Commit के लिए ये चलाएं:\n\ngit add -A\ngit commit -m \"" + msg + "\""
+      );
+      pendingAction = "push";
+    });
+  }
+
+  const preparePushBtn = document.getElementById("preparePushBtn");
+  if (preparePushBtn) {
+    preparePushBtn.addEventListener("click", () => {
+      if (!pendingChanges.length) {
+        appendChatMessage("ai", "अभी कोई applied changes नहीं हैं.");
+        return;
+      }
+      appendChatMessage("ai", "Push के लिए ये चलाएं:\n\ngit push");
+      pendingAction = "";
+    });
   }
 
   const attachInfo = document.getElementById("attachInfo");

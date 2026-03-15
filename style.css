@@ -253,6 +253,11 @@ body{
 .model-name{font-size:12px;color:#e6e6e6;}
 .model-meta{font-size:10px;color:var(--muted);}
 .model-note{font-size:10px;color:var(--muted);}
+.commit-card{display:flex;flex-direction:column;gap:8px;padding:8px;border:1px dashed #262729;border-radius:10px;background:#101112;}
+.commit-info{font-size:11px;color:#d2d6db;}
+.commit-card input{background:#0f1011;border:1px solid #242528;color:#e6e6e6;border-radius:8px;padding:6px 8px;font-size:11px;outline:none;}
+.commit-card input:focus{border-color:#3a3d44;}
+.commit-actions{display:flex;gap:6px;}
 .chat-input{flex-wrap:wrap;gap:6px;}
 .chat-input .icon-btn{height:30px;}
 .chat-input #chatInput{flex:1 1 200px;}
