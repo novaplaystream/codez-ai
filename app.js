@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (projectFolder) {
     projectFolder.addEventListener("change", () => {
       const files = Array.from(projectFolder.files || []);
-      const root = files[0]?.webkitRelativePath?.split("/")[0] || "Project";
+      const root = files[0]?.webkitRelativePath?.split("/")[0] || files[0]?.name || "Project";
       if (projectInfo) {
         projectInfo.textContent = files.length
           ? `${root} (${files.length} files)`
