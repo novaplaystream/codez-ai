@@ -88,7 +88,7 @@ async function ensureHindi(text) {
 }
 
 async function callGroqAI(prompt, options = {}) {
-  const { textAttachments = [], imageAttachments = [] } = options;
+  const { textAttachments = [], imageAttachments = [], modelOverride = "" } = options;
   if (!process.env.GROQ_API_KEY) {
     return "GROQ_API_KEY missing. Please set it in .env and redeploy.";
   }
@@ -128,7 +128,9 @@ async function callGroqAI(prompt, options = {}) {
     }
   ];
 
-  const model = imageAttachments.length
+  const model = modelOverride
+    ? modelOverride
+    : imageAttachments.length
     ? process.env.GROQ_VISION_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct"
     : process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile";
 
@@ -147,6 +149,7 @@ app.post("/ai", upload.array("files", 10), async (req, res) => {
   try {
     const files = Array.from(req.files || []);
     const promptRaw = req.body?.prompt;
+    const modelOverride = req.body?.model ? String(req.body.model) : "";
     const hasPrompt = promptRaw && String(promptRaw).trim();
     if (!hasPrompt && files.length === 0) {
       return res.status(400).json({ error: "Prompt or image required" });
@@ -173,7 +176,7 @@ app.post("/ai", upload.array("files", 10), async (req, res) => {
       }
     });
 
-    const result = await callGroqAI(prompt, { textAttachments, imageAttachments });
+    const result = await callGroqAI(prompt, { textAttachments, imageAttachments, modelOverride });
     return res.json({ result });
   } catch (err) {
     console.error("[AI ERROR]", err);

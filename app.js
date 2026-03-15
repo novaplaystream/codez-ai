@@ -314,6 +314,7 @@ async function sendChatMessage() {
     if (selectedFiles.length > 0) {
       const form = new FormData();
       form.append("prompt", finalPrompt);
+      if (selectedModel) form.append("model", selectedModel);
       selectedFiles.forEach((file) => form.append("files", file, file.name));
       response = await fetch(apiUrl("/ai"), {
         method: "POST",
