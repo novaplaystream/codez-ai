@@ -1,5 +1,8 @@
-// API base URL (deployed pe relative use kar rahe hain)
-const API_BASE = window.location.origin;
+// API base URL (prefer backend-url meta when frontend is hosted separately)
+const BACKEND_BASE =
+  document.querySelector('meta[name="backend-url"]')?.content?.trim() ||
+  window.location.origin;
+const API_BASE = BACKEND_BASE;
 function apiUrl(path) {
   return API_BASE + path;
 }
@@ -134,7 +137,7 @@ function renderThreadList() {
       const del = document.createElement("button");
       del.className = "thread-delete";
       del.title = "Delete thread";
-      del.textContent = "×";
+      del.textContent = "x";
       del.addEventListener("click", (e) => {
         e.stopPropagation();
         deleteThread(thread.id);
@@ -453,14 +456,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("loginBtn");
   if (loginBtn) {
     loginBtn.addEventListener("click", () => {
-      window.location.href = "/auth/github";
+      window.location.href = `${BACKEND_BASE}/auth/github`;
     });
   }
 
   const googleLoginBtn = document.getElementById("googleLoginBtn");
   if (googleLoginBtn) {
     googleLoginBtn.addEventListener("click", () => {
-      window.location.href = "/auth/google";
+      window.location.href = `${BACKEND_BASE}/auth/google`;
     });
   }
 
