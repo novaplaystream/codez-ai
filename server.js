@@ -319,7 +319,8 @@ app.post("/ai", upload.array("files", 10), async (req, res) => {
     return res.json({ result });
   } catch (err) {
     console.error("[AI ERROR]", err);
-    return res.status(500).json({ error: "AI request failed" });
+    const safeMessage = err && err.message ? String(err.message) : "AI request failed";
+    return res.status(500).json({ error: "AI request failed", error_detail: safeMessage });
   }
 });
 

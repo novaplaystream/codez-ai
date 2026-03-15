@@ -606,7 +606,8 @@ async function sendChatMessage() {
         appendChatMessage("ai", applyResult.message);
       }
     } else {
-      appendChatMessage("ai", data.result || data.error || "Koi jawab nahi mila");
+      const detail = data.error_detail ? ` (${data.error_detail})` : "";
+      appendChatMessage("ai", data.result || (data.error ? data.error + detail : "Koi jawab nahi mila"));
     }
 
     // Clear attachments after successful send
