@@ -76,12 +76,21 @@
             <div id="chatLog" class="chat-log"></div>
           </div>
 
-         <div class="chat-input">
-  <input id="chatInput" type="text" placeholder="Ask anything – code generate karo, explain karo, fix karo..." />
-  <button class="chat-send" onclick="sendChatMessage()">
+    <div class="chat-input">
+  <input 
+    id="chatInput" 
+    type="text" 
+    placeholder="Ask anything – code generate karo, explain karo, fix karo..." 
+  />
+  <button 
+    class="chat-send" 
+    onclick="sendChatMessage()"   <!-- ← yeh line bilkul sahi honi chahiye -->
+  >
     <svg aria-hidden="true"><use href="#i-play"></use></svg>
-            </button>
-          </div>
+  </button>
+</div>
+
+          
         </div>
       </section>
     </main>
