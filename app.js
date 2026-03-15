@@ -606,11 +606,20 @@ async function sendChatMessage() {
       });
     }
 
-    if (!response.ok) {
-      throw new Error(`Server ne ${response.status} status diya`);
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      const detail = data && data.error_detail ? ` (${data.error_detail})` : "";
+      placeholder.remove();
+      appendChatMessage("ai", `Error: Server ne ${response.status} status diya${detail}`);
+      return;
+    }
+
     placeholder.remove();
 
     if (wantsApply) {
@@ -626,8 +635,8 @@ async function sendChatMessage() {
         appendChatMessage("ai", applyResult.message);
       }
     } else {
-      const detail = data.error_detail ? ` (${data.error_detail})` : "";
-      appendChatMessage("ai", data.result || (data.error ? data.error + detail : "Koi jawab nahi mila"));
+      const detail = data && data.error_detail ? ` (${data.error_detail})` : "";
+      appendChatMessage("ai", data && (data.result || (data.error ? data.error + detail : null)) || "Koi jawab nahi mila");
     }
 
     // Clear attachments after successful send
