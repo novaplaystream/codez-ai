@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,4 +160,106 @@
 
   <script src="app.js"></script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Codez AI – Codex Style</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- Left Sidebar -->
+    <nav class="nav">
+      <div class="nav-top">
+        <button class="nav-link" onclick="startNewThread()">
+          <svg><use href="#i-newthread"></use></svg> New Conversation
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Conversations</div>
+        <div class="thread-group">
+          <div class="thread-item active">
+            <div class="thread-title">Batao project ke bare mein</div>
+            <div class="thread-time">just now</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-footer">
+        <div class="status" id="authStatus">Guest</div>
+        <button id="loginBtn" class="nav-link">GitHub Login</button>
+      </div>
+    </nav>
+
+    <!-- Main Area -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="title">
+            <div class="title-main">Codez AI</div>
+            <div class="title-sub">Your AI coding partner</div>
+          </div>
+          <div class="status" id="modelTag">model: llama-3.3-70b</div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Generate" onclick="runAI('generate')">Generate</button>
+          <button class="icon-btn" title="Explain" onclick="runAI('explain')">Explain</button>
+          <button class="icon-btn" title="Debug" onclick="runAI('debug')">Debug</button>
+          <button class="icon-btn" title="Optimize" onclick="runAI('optimize')">Optimize</button>
+        </div>
+      </header>
+
+      <section class="unified-bar">
+        <input id="actionUrl" type="text" placeholder="Paste repo URL or website URL" />
+        <button class="icon-btn" onclick="cloneRepoUnified()">Clone</button>
+        <input id="commitMsg" type="text" placeholder="Commit message" />
+        <button class="icon-btn" onclick="pushRepo()">Commit & Push</button>
+      </section>
+
+      <section class="workbench">
+        <div id="editor" class="editor"></div>
+
+        <div class="ai">
+          <div class="attach-row">
+            <label class="icon-btn" for="aiFile"><svg><use href="#i-file-plus"></use></svg></label>
+            <input type="file" id="aiFile" multiple class="hidden-input" />
+            <div class="attach-info" id="attachInfo">No attachments</div>
+            <div class="ai-tag">Groq Powered</div>
+          </div>
+
+          <div id="result" class="chat">
+            <div id="chatLog" class="chat-log"></div>
+          </div>
+
+    <div class="chat-input">
+  <input 
+    id="chatInput" 
+    type="text" 
+    placeholder="Ask anything – code generate karo, explain karo, fix karo..." 
+  />
+  <button 
+    class="chat-send" 
+    onclick="sendChatMessage()"   <!-- ← yeh line bilkul sahi honi chahiye -->
+  >
+    <svg aria-hidden="true"><use href="#i-play"></use></svg>
+  </button>
+</div>
+
+          
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 </html>

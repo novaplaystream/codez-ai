@@ -1,10 +1,18 @@
 // API base URL (deployed pe relative use kar rahe hain)
+<<<<<<< HEAD
 const API_BASE = window.location.origin;
+=======
+const API_BASE = window.location.origin;  // automatically https://codez-ai-production.up.railway.app
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 function apiUrl(path) {
   return API_BASE + path;
 }
 
+<<<<<<< HEAD
 let attachments = [];
+=======
+let attachments = [];  // agar attachments feature use kar rahe ho
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 
 // Simple HTML escape function
 function escapeHtml(unsafe) {
@@ -27,6 +35,7 @@ function appendChatMessage(role, text) {
   const body = document.createElement("div");
   body.className = "chat-msg-body";
 
+<<<<<<< HEAD
   let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     lang = lang || "javascript";
     return `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`;
@@ -39,6 +48,21 @@ function appendChatMessage(role, text) {
   const safeText = escapeHtml(text).replace(/'/g, "\\'");
   actions.innerHTML = `
     <button class="chat-msg-btn" onclick="navigator.clipboard.writeText('${safeText}')">Copy</button>
+=======
+  // Code blocks ko highlight karne ke liye simple replace
+  let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+    lang = lang || 'javascript';
+    return `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`;
+  });
+
+  body.innerHTML = formatted.replace(/\n/g, '<br>');
+
+  // Copy aur Delete buttons
+  const actions = document.createElement("div");
+  actions.className = "chat-msg-actions";
+  actions.innerHTML = `
+    <button class="chat-msg-btn" onclick="navigator.clipboard.writeText('${escapeHtml(text).replace(/'/g, "\\'")}')">Copy</button>
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
     <button class="chat-msg-btn danger" onclick="this.closest('.chat-msg').remove()">Delete</button>
   `;
 
@@ -46,10 +70,37 @@ function appendChatMessage(role, text) {
   row.appendChild(actions);
   log.appendChild(row);
 
+<<<<<<< HEAD
+=======
+  // Auto scroll to bottom
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
   log.scrollTop = log.scrollHeight;
 
   return row;
 }
+<<<<<<< HEAD
+=======
+
+// Main send function with full debug
+async function sendChatMessage() {
+  console.log("[DEBUG] sendChatMessage() shuru hua");
+
+  const input = document.getElementById("chatInput");
+  if (!input) {
+    console.error("[ERROR] chatInput element nahi mila DOM mein");
+    return;
+  }
+
+  const message = input.value.trim();
+  if (!message) {
+    console.log("[DEBUG] Message khali hai, return kar raha");
+    return;
+  }
+
+  console.log("[DEBUG] Message:", message);
+
+  input.value = "";
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 
 // Main send function with full debug
 async function sendChatMessage() {
@@ -68,6 +119,11 @@ async function sendChatMessage() {
   const placeholder = appendChatMessage("ai", "Soch raha hoon...");
 
   try {
+<<<<<<< HEAD
+=======
+    console.log("[DEBUG] Fetch shuru: " + apiUrl("/ai"));
+
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
     const response = await fetch(apiUrl("/ai"), {
       method: "POST",
       headers: {
@@ -79,11 +135,21 @@ async function sendChatMessage() {
       })
     });
 
+<<<<<<< HEAD
+=======
+    console.log("[DEBUG] Response status:", response.status);
+
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
     if (!response.ok) {
       throw new Error(`Server ne ${response.status} status diya`);
     }
 
     const data = await response.json();
+<<<<<<< HEAD
+=======
+    console.log("[DEBUG] Response data:", data);
+
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
     placeholder.remove();
     appendChatMessage("ai", data.result || data.error || "Koi jawab nahi mila");
   } catch (err) {
@@ -95,6 +161,12 @@ async function sendChatMessage() {
 
 // Quick action buttons (Generate, Explain, Debug, Optimize)
 async function runAI(mode) {
+<<<<<<< HEAD
+=======
+  console.log("[DEBUG] runAI called with mode:", mode);
+
+  // Agar Monaco editor hai to usse code le, warna fallback
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
   const code = window.editor?.getValue() || "";
 
   let prompt = "";
@@ -115,9 +187,19 @@ async function runAI(mode) {
       prompt = "Help me with: " + code;
   }
 
+<<<<<<< HEAD
   if (!prompt.trim()) return;
 
   appendChatMessage("user", `(${mode.toUpperCase()}) ${prompt.substring(0, 100)}...`);
+=======
+  if (!prompt.trim()) {
+    console.warn("[WARN] Prompt khali hai");
+    return;
+  }
+
+  appendChatMessage("user", `(${mode.toUpperCase()}) ${prompt.substring(0, 100)}...`);
+
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
   const placeholder = appendChatMessage("ai", "Processing...");
 
   try {
@@ -134,6 +216,7 @@ async function runAI(mode) {
     placeholder.remove();
     appendChatMessage("ai", "Error: " + err.message);
   }
+<<<<<<< HEAD
 }
 
 function setActiveThread(newItem) {
@@ -201,10 +284,13 @@ function setupLabelToggles() {
   document.addEventListener("click", () => {
     buttons.forEach((b) => b.classList.remove("show-label"));
   });
+=======
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
 }
 
 // Sab kuch DOM ready hone ke baad bind karo
 document.addEventListener("DOMContentLoaded", () => {
+<<<<<<< HEAD
   const input = document.getElementById("chatInput");
   if (input) {
     input.addEventListener("keydown", (e) => {
@@ -251,3 +337,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+=======
+  console.log("DOM ready → binding send button");
+
+  const sendBtn = document.querySelector(".chat-send");
+  if (sendBtn) {
+    sendBtn.addEventListener("click", sendChatMessage);
+    console.log("Send button successfully bound");
+  } else {
+    console.error("Send button (.chat-send) nahi mila DOM mein");
+  }
+
+  // Enter key wala code bhi yahin rakh (pehle se hai toh theek)
+});
+  } else {
+    console.error("[CRITICAL] chatInput ID nahi mila");
+  }
+
+  if (sendBtn) {
+    sendBtn.addEventListener("click", () => {
+      console.log("[DEBUG] Send button click → sendChatMessage");
+      sendChatMessage();
+    });
+  } else {
+    console.error("[CRITICAL] .chat-send button nahi mila");
+  }
+
+  // Monaco editor init (agar use kar rahe ho)
+  if (typeof monaco !== 'undefined') {
+    console.log("[INFO] Monaco editor shuru kar rahe hain");
+    window.editor = monaco.editor.create(document.getElementById("editor"), {
+      value: "// Code yahan paste karo\n",
+      language: "javascript",
+      theme: "vs-dark"
+    });
+  }
+});
+
+// Optional: agar attachments feature chahiye toh yahan add kar sakte ho
+>>>>>>> bb1698b43c79d148454420af0252e612d52936b1
