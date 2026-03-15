@@ -39,7 +39,24 @@ app.get("/models", async (req, res) => {
     return res.json({ models });
   } catch (err) {
     console.error("[MODELS ERROR]", err);
-    return res.status(500).json({ error: "Models fetch failed" });
+    const detail = err?.message || err?.cause?.code || "Models fetch failed";
+    return res.status(500).json({ error: "Models fetch failed", error_detail: String(detail) });
+  }
+});
+
+app.get("/debug/groq", async (req, res) => {
+  try {
+    const response = await callGroqWithRetry(() => groq.models.list());
+    const models = response?.data || [];
+    return res.json({ ok: true, model_count: models.length });
+  } catch (err) {
+    const detail =
+      err?.message ||
+      err?.cause?.message ||
+      err?.cause?.code ||
+      err?.code ||
+      "unknown";
+    return res.status(500).json({ ok: false, error_detail: String(detail) });
   }
 });
 
@@ -174,7 +191,10 @@ function bufferToSafeText(buffer) {
 }
 
 // Groq
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: process.env.GROQ_BASE_URL || undefined
+});
 
 function hasDevanagari(text) {
   return /[\u0900-\u097F]/.test(text || "");
