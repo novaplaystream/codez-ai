@@ -59,6 +59,7 @@ function appendChatMessage(role, text, opts = {}) {
   });
 
   const textBlock = document.createElement("div");
+  textBlock.className = "chat-text";
   textBlock.innerHTML = formatted.replace(/\n/g, "<br>");
   body.appendChild(textBlock);
 
