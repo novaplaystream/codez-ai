@@ -50,7 +50,9 @@ app.get("/auth/github", (req, res) => {
     return res.status(400).send("GitHub OAuth not configured.");
   }
   const proto = req.get("x-forwarded-proto") || req.protocol;
-  const redirectUri = `${proto}://${req.get("host")}/auth/github/callback`;
+  const host = req.get("host");
+  const redirectUri =
+    process.env.GITHUB_CALLBACK_URL || `${proto}://${host}/auth/github/callback`;
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -64,10 +66,14 @@ app.get("/auth/github/callback", async (req, res) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
     if (!code || !clientId || !clientSecret) {
-      return res.redirect("/?auth=github&error=1");
+      return res.redirect(
+        (process.env.FRONTEND_URL || "/") + "?auth=github&error=1"
+      );
     }
     const proto = req.get("x-forwarded-proto") || req.protocol;
-    const redirectUri = `${proto}://${req.get("host")}/auth/github/callback`;
+    const host = req.get("host");
+    const redirectUri =
+      process.env.GITHUB_CALLBACK_URL || `${proto}://${host}/auth/github/callback`;
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: {
@@ -83,12 +89,14 @@ app.get("/auth/github/callback", async (req, res) => {
     });
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      return res.redirect("/?auth=github&error=1");
+      return res.redirect(
+        (process.env.FRONTEND_URL || "/") + "?auth=github&error=1"
+      );
     }
-    return res.redirect("/?auth=github");
+    return res.redirect((process.env.FRONTEND_URL || "/") + "?auth=github");
   } catch (err) {
     console.error("[GITHUB AUTH ERROR]", err);
-    return res.redirect("/?auth=github&error=1");
+    return res.redirect((process.env.FRONTEND_URL || "/") + "?auth=github&error=1");
   }
 });
 
@@ -99,7 +107,9 @@ app.get("/auth/google", (req, res) => {
     return res.status(400).send("Google OAuth not configured.");
   }
   const proto = req.get("x-forwarded-proto") || req.protocol;
-  const redirectUri = `${proto}://${req.get("host")}/auth/google/callback`;
+  const host = req.get("host");
+  const redirectUri =
+    process.env.GOOGLE_CALLBACK_URL || `${proto}://${host}/auth/google/callback`;
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -116,10 +126,14 @@ app.get("/auth/google/callback", async (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     if (!code || !clientId || !clientSecret) {
-      return res.redirect("/?auth=google&error=1");
+      return res.redirect(
+        (process.env.FRONTEND_URL || "/") + "?auth=google&error=1"
+      );
     }
     const proto = req.get("x-forwarded-proto") || req.protocol;
-    const redirectUri = `${proto}://${req.get("host")}/auth/google/callback`;
+    const host = req.get("host");
+    const redirectUri =
+      process.env.GOOGLE_CALLBACK_URL || `${proto}://${host}/auth/google/callback`;
     const body = new URLSearchParams({
       code,
       client_id: clientId,
@@ -134,12 +148,14 @@ app.get("/auth/google/callback", async (req, res) => {
     });
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      return res.redirect("/?auth=google&error=1");
+      return res.redirect(
+        (process.env.FRONTEND_URL || "/") + "?auth=google&error=1"
+      );
     }
-    return res.redirect("/?auth=google");
+    return res.redirect((process.env.FRONTEND_URL || "/") + "?auth=google");
   } catch (err) {
     console.error("[GOOGLE AUTH ERROR]", err);
-    return res.redirect("/?auth=google&error=1");
+    return res.redirect((process.env.FRONTEND_URL || "/") + "?auth=google&error=1");
   }
 });
 
