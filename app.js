@@ -463,7 +463,7 @@ function isConfirmNo(text) {
 }
 
 function isEditRequest(text) {
-  return /(fix|apply|update|change|edit|improve|refactor|optimize|better|kami|sahi|thik)/i.test(
+  return /(fix|apply|update|change|edit|improve|refactor|optimize|better|kami|sahi|thik|jodo|jodo|jod do|jodo|jodo|jodo|jod|jodne|jodo|jodo|jodo|add|lagao|laga do|banao|bna do|banado|jodo|jod do|jodo)/i.test(
     text || ""
   );
 }
