@@ -38,7 +38,7 @@ body{
 
 .main{display:flex;flex-direction:column;min-width:0;height:100vh;overflow:hidden;}
 
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:#141516;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:5px 14px;border-bottom:1px solid var(--border);background:#141516;}
 
 .topbar-left{display:flex;align-items:center;gap:12px;}
 
