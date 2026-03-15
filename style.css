@@ -53,8 +53,8 @@ body{
 .topbar-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 
 .icon-btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-width:28px;height:28px;padding:0 8px;border-radius:10px;
   border:1px solid rgba(255,255,255,0.12);
   background:rgba(255,255,255,0.04);
   backdrop-filter:blur(6px);
@@ -148,8 +148,8 @@ body{
 .attach-row .ai-tag{margin-left:auto;}
 
 
-\.chat-input{display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid #202225;border-radius:14px;background:#0f1011;min-height:52px;}
-.chat-input input{flex:1;width:100%;min-height:38px;padding:6px 8px;background:transparent;border:none;color:#e6e6e6;font-size:12px;outline:none;}
+.chat-input{margin-top:8px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #202225;border-radius:14px;background:#0f1011;}
+.chat-input input{flex:1;background:transparent;border:none;color:#e6e6e6;font-size:12px;outline:none;}
 .chat-send{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);cursor:pointer;color:#e6e6e6;}
 .chat-send svg{width:16px;height:16px;fill:currentColor;stroke:none;}
 
@@ -196,5 +196,11 @@ body{
 .chat-msg-btn.danger{color:#fca5a5;border-color:#3a2a2a;background:#1a1212;}
 
 
+
+
+.btn-label{display:none;white-space:nowrap;}
+.icon-only.show-label .btn-label{display:inline;}
+.nav-link.icon-only.show-label .btn-label{display:inline;}
+.icon-only.show-label{padding-right:10px;}
 
 
