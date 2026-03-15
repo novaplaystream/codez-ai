@@ -78,6 +78,18 @@
       </div>
 
       <div class="nav-section">
+        <div class="nav-section-title">Models</div>
+        <div class="model-card">
+          <button class="nav-link icon-only" onclick="refreshModels()" aria-label="Refresh Models" data-label>
+            <svg><use href="#i-download"></use></svg>
+            <span class="btn-label">Refresh</span>
+          </button>
+          <div class="model-list" id="modelList">Loading models...</div>
+          <div class="model-note">Free tier availability depends on your Groq account limits.</div>
+        </div>
+      </div>
+
+      <div class="nav-section">
         <div class="nav-section-title">Threads</div>
         <div class="thread-group" id="threadGroup"></div>
       </div>

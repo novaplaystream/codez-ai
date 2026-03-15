@@ -27,6 +27,20 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
+app.get("/models", async (req, res) => {
+  try {
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(400).json({ error: "GROQ_API_KEY missing" });
+    }
+    const response = await groq.models.list();
+    const models = response?.data || [];
+    return res.json({ models });
+  } catch (err) {
+    console.error("[MODELS ERROR]", err);
+    return res.status(500).json({ error: "Models fetch failed" });
+  }
+});
+
 // Uploads (memory, small)
 const upload = multer({
   storage: multer.memoryStorage(),

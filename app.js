@@ -213,6 +213,46 @@ function renderThreadMessages() {
   });
 }
 
+async function refreshModels() {
+  const listEl = document.getElementById("modelList");
+  if (listEl) listEl.textContent = "Loading models...";
+
+  try {
+    const res = await fetch(apiUrl("/models"));
+    if (!res.ok) throw new Error(`Server ${res.status}`);
+    const data = await res.json();
+    const models = Array.isArray(data.models) ? data.models : [];
+
+    if (!listEl) return;
+    listEl.innerHTML = "";
+
+    if (models.length === 0) {
+      listEl.textContent = "No models available for this key.";
+      return;
+    }
+
+    models.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "model-item";
+      const name = document.createElement("div");
+      name.className = "model-name";
+      name.textContent = m.id || "unknown-model";
+      const meta = document.createElement("div");
+      meta.className = "model-meta";
+      const parts = [];
+      if (m.owned_by) parts.push(m.owned_by);
+      if (m.context_window) parts.push(`ctx ${m.context_window}`);
+      meta.textContent = parts.join(" • ");
+      item.appendChild(name);
+      if (meta.textContent) item.appendChild(meta);
+      listEl.appendChild(item);
+    });
+  } catch (err) {
+    if (listEl) listEl.textContent = "Models load failed. Check server logs.";
+    console.error("[ERROR] models fetch", err);
+  }
+}
+
 // Main send function
 async function sendChatMessage() {
   const input = document.getElementById("chatInput");
@@ -382,6 +422,7 @@ function setupLabelToggles() {
 
 // Sab kuch DOM ready hone ke baad bind karo
 document.addEventListener("DOMContentLoaded", () => {
+  refreshModels();
   loadThreads();
   if (!threads.length) {
     createThread("Batao project ke bare mein");
