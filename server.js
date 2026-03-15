@@ -77,7 +77,7 @@ async function callGroqAI(prompt, options = {}) {
     {
       role: "system",
       content:
-        "You are Codez AI, a helpful coding assistant. Reply concisely in Hindi-English mix."
+        "You are Codez AI, a helpful coding assistant. Reply concisely in Hindi by default."
     },
     {
       role: "user",

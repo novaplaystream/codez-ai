@@ -188,7 +188,7 @@ function startNewThread() {
   const input = document.getElementById("chatInput");
   if (input) input.value = "";
   addThreadItem("New conversation");
-  appendChatMessage("ai", "New conversation started.");
+  appendChatMessage("ai", "नई बातचीत शुरू हुई। मैं अब हिंदी में जवाब दूंगा।");
 }
 
 function cloneRepoUnified() {
